@@ -1,8 +1,11 @@
 # Overview
 
-Owl is a new programming language that combines object-oriented
-programming and functional programming by rethinking the design of the
-language to make it easier to mix both paradigms.  Owl strives to:
+Owl is a new programming language for cross-platform mobile
+development.  Owl strives to:
+
+- combine object-oriented programming and functional programming by
+  rethinking the design of the language to make it easier to mix both
+  paradigms,
 
 - be a cross-platform mobile development language capable of being
   compiled to both Anroid and iOS,
