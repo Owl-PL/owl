@@ -1,0 +1,10 @@
+embed
+  {{tex-preamble \usepackage{cmll}
+                 \usepackage{stmaryrd}
+                 \usepackage{relsize} }}
+
+metavar termvar, x, y , z, f  ::=
+metavar semiringEl, r , s ::=
+metavar type, T , S ::=
+indexvar i , j ::=
+
