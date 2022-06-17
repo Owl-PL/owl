@@ -17,10 +17,10 @@ pdf : $(OTTGen)
 	pdflatex $(OTTGen)
 
 open: pdf
-	open -a Skim $(OTTGen)
+	open -a Skim $(OTTFileName).pdf
 
 clean :
 	rm -f *.aux *.dvi *.ps *.log *-ott.tex *-output.tex *.bbl *.blg \
 	      *.rel note.pdf *~ *.vtc *.out *.spl *-inc.tex  *-ott.tex *-ottput.tex \
-	      *.toc $(OTTGen) $(OTTFileName).pdf
+	      *.toc $(OTTGen)
 

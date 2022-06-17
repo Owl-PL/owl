@@ -5,16 +5,40 @@ embed
 
 metavar termvar, x, y , z, f  ::=
 metavar semiringEl, r , s ::=
-metavar type, T , S ::=
 indexvar i , j ::=
 
 grammar
 
-  prog :: 'Prg_' ::=
-    | module x ( y1 : T1 , ... , yi : Ti ) where :: :: Module
+  prog :: 'Prg_' ::= {{com A program. }}
+    | module x ( y1 : T1 , ... , yi : Ti ) where modBody :: :: Module
 
-  terminals :: 'terminals_' ::=
+  modBody :: 'modBody_'  ::= {{com Module body }}
+    |  importExp1 ... importExpi topDef1 ... topDefj :: :: Import {{com Import a module }}
+    | topDef1 ... topDefi        :: :: Defs   {{com Top level definition. }}
+
+  importExp :: 'importExp_' ::= {{com Import Expression }}
+    | import x ( y1 , .... , yi )                           :: :: Basic
+    | import x ( y1 , .... , yi ) hiding ( z1 , ... , zj ) :: :: Hiding
+    
+
+  topDef :: 'topDef_' ::= {{com Top level definitions }}
+    | struct x { } :: :: Struct {{com Structs }}
+    | class x { }  :: :: Class  {{com Classes }}
+    | funDef       :: :: FunDef {{com Function Definitions }}
+
+  T :: 'types_' ::= {{com Types }}
+    | ? :: :: Dynamic {{com The dynamic type. }}
+
+  terminals :: 'terminals_' ::=    
     | module :: :: Module
     {{tex \mathsf{module} }}
     | where  :: :: Where
     {{tex \mathsf{where} }}
+    | class  :: :: Class
+    {{tex \mathsf{class} }}
+    | struct :: :: Struct
+    {{tex \mathsf{struct} }}
+    | import :: :: Import
+    {{tex \mathsf{import} }}
+    | hiding :: :: Hiding
+    {{tex \mathsf{hiding} }}
