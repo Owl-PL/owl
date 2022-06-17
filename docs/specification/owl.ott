@@ -8,3 +8,13 @@ metavar semiringEl, r , s ::=
 metavar type, T , S ::=
 indexvar i , j ::=
 
+grammar
+
+  prog :: 'Prg_' ::=
+    | module x ( y1 : T1 , ... , yi : Ti ) where :: :: Module
+
+  terminals :: 'terminals_' ::=
+    | module :: :: Module
+    {{tex \mathsf{module} }}
+    | where  :: :: Where
+    {{tex \mathsf{where} }}
