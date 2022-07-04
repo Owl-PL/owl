@@ -1,3 +1,4 @@
 *.aux
 *.log
 /docs/specification/owl.tex
+/docs/owl.wiki/
