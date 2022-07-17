@@ -1,0 +1,69 @@
+embed
+  {{tex-preamble \usepackage{cmll}
+                 \usepackage{stmaryrd}
+                 \usepackage{relsize} }}
+
+metavar termvar, x, y , z, f  ::=
+metavar modName, M ::=
+indexvar i , j ::=
+
+grammar
+
+  prog :: 'Prog_' ::= {{com Program }}
+    | topMod1 ... topModi :: :: Modules
+
+  topMod :: 'TMod_' ::= {{com Top level module }}
+    | module M1 : { modSig } module M2 { modBody } :: :: TopMod
+    | mod :: :: Module
+    | module M1 : { modSig } :: :: ModSig
+    
+  mod :: 'Mod_' ::= {{com Modules }}
+    | module M { modBody }                             :: :: Module
+    | module M ( x1 : M1 , ... , xi : Mi ) { modBody } :: :: Functor
+    | module M = M1 ( M2 )                             :: :: FuncApp
+
+  modBody :: 'modBody_'  ::= {{com Module body }}
+    |  importExp1 ... importExpi topDef1 ... topDefj :: :: Import {{com Import a module }}
+    | topDef1 ... topDefi        :: :: Defs   {{com Top level definition. }}
+
+  importExp :: 'importExp_' ::= {{com Import Expression }}
+    | import x ( y1 , .... , yi )                           :: :: Basic
+    | import x ( y1 , .... , yi ) hiding ( z1 , ... , zj ) :: :: Hiding
+    
+  topDef :: 'topDef_' ::= {{com Top level definitions }}
+    | struct x { } :: :: Struct {{com Structs }}
+    | class x { }  :: :: Class  {{com Classes }}
+    | funDef       :: :: FunDef {{com Function Definitions }}
+
+  funDef :: 'funDef_' ::= {{com Top-level functon definitions }}
+    | x1 : funType x2 funParams = t       :: :: FunStyle   {{com Functional Style }}
+    | x1 : funType x2 ( funParams ) { t } :: :: SwiftStyle {{com Swift Style }}
+
+  funType :: 'funType_' ::= {{com Function Types }}
+    | T1 -> ... -> Ti :: :: FunStyle
+
+  funParams :: 'funParams_' ::= {{com Function Parameters }}
+    | y1 , ... , yi :: :: FunStyle
+
+  modSig :: 'modSig_' ::= {{com Module Signature }}
+  
+  K :: 'kinds_' ::= {{com Kinds }}
+
+  T :: 'types_' ::= {{com Types }}
+    | ? :: :: Dynamic {{com The dynamic type. }}
+
+  terminals :: 'terminals_' ::=
+    | ->     :: :: Arrow
+    {{tex \rightarrow }}
+    | module :: :: Module
+    {{tex \mathsf{module} }}
+    | where  :: :: Where
+    {{tex \mathsf{where} }}
+    | class  :: :: Class
+    {{tex \mathsf{class} }}
+    | struct :: :: Struct
+    {{tex \mathsf{struct} }}
+    | import :: :: Import
+    {{tex \mathsf{import} }}
+    | hiding :: :: Hiding
+    {{tex \mathsf{hiding} }}

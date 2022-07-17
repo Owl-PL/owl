@@ -4,13 +4,13 @@ OTT_FLAGS_WRAP := -tex_show_meta false -picky_multiple_parses false
 OTT_FLAGS_NO_WRAP := -tex_wrap false -tex_show_meta false -picky_multiple_parses false
 OTT_FLAGS := $(OTT_FLAGS_WRAP)
 
-OTTFileName := owl
+OTTFileName := surface
 OTTFile := $(OTTFileName).ott
 OTTGen := $(OTTFileName).tex
 
 all : pdf
 
-$(OTTGen) : owl.ott
+$(OTTGen) : $(OTTFile)
 	$(OTT) $(OTT_FLAGS) -i $(OTTFile) -o $(OTTGen)
 
 pdf : $(OTTGen)
