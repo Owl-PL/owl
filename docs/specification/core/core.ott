@@ -3,56 +3,219 @@ embed
                  \usepackage{stmaryrd}
                  \usepackage{relsize} }}
 
-metavar termvar, x, y , z, f  ::=
-metavar modName, M ::=
 indexvar i , j ::=
 
 grammar
 
   prog :: 'Prog_' ::= {{com Program }}
-    | topMod1 ... topModi :: :: Modules
+    | sc1 ; ... ; sci :: :: Program {{com Sequence of supercombinators $(i > 0)$}}
 
-  topMod :: 'TMod_' ::= {{com Top level module }}
-    | module M1 : { modSig } module M2 { modBody } :: :: TopMod
-    | mod :: :: Module
-    | module M1 : { modSig } :: :: ModSig
-    
-  mod :: 'Mod_' ::= {{com Modules }}
-    | module M { modBody }                             :: :: Module
-    | module M ( x1 : M1 , ... , xi : Mi ) { modBody } :: :: Functor
-    | module M = M1 ( M2 )                             :: :: FuncApp
+  sc :: 'SC_' ::= {{com supercombinators }}
+    | var space var1 ... vari = expr :: :: SC {{com Combinator ($i > 0$)}}
 
-  modBody :: 'modBody_'  ::= {{com Module body }}
-    |  importExp1 ... importExpi topDef1 ... topDefj :: :: Import {{com Import a module }}
-    | topDef1 ... topDefi        :: :: Defs   {{com Top level definition. }}
+  expr :: 'Expr_' ::= {{com Expressions }}
+    | expr aexpr              :: :: Application {{com Application }}
+    | expr1 binop expr2       :: :: IBin        {{com Infix binary application }}
+    | let defs in expr        :: :: LocalDef    {{com Local definition }}
+    | letrec defs in expr     :: :: Rec         {{com Local recursive definition }}    
+    | case expr of alts       :: :: Case        {{com Case expression }}
+    | \l var1 ... vari . expr :: :: Lambda      {{com Lambda abstraction ($i > 0$)}}
+    | aexpr                   :: :: Atomic      {{com Atomic expression }}
 
-  importExp :: 'importExp_' ::= {{com Import Expression }}
-    | import x ( y1 , .... , yi )                           :: :: Basic
-    | import x ( y1 , .... , yi ) hiding ( z1 , ... , zj ) :: :: Hiding
-    
-  topDef :: 'topDef_' ::= {{com Top level definitions }}
-    | struct x { } :: :: Struct {{com Structs }}
-    | class x { }  :: :: Class  {{com Classes }}
-    | funDef       :: :: FunDef {{com Function Definitions }}
+  aexpr :: 'AExpr_' ::= {{com Atomic expression }}
+    | var                  :: :: Variable  {{com Variable }}
+    | num                  :: :: Number    {{com Number }}
+    | Pack { num1 , num2 } :: :: Pack      {{com Datatype constructor }}
+    | ( expr )             :: :: ParenExpr {{com Parened expression }}
 
-  funDef :: 'funDef_' ::= {{com Top-level functon definitions }}
-    | x1 : funType x2 funParams = t       :: :: FunStyle   {{com Functional Style }}
-    | x1 : funType x2 ( funParams ) { t } :: :: SwiftStyle {{com Swift Style }}
+  defs :: 'Defnss_' ::=  {{com Definitions }}
+    | def1 ; ... ; defi :: :: Defns {{com Sequence of definitions ($i > 0$) }}
 
-  funType :: 'funType_' ::= {{com Function Types }}
-    | T1 -> ... -> Ti :: :: FunStyle
+  def :: 'Defn_' ::= {{com Definition }}
+    | var = expr :: :: Def {{com A definition }}
 
-  funParams :: 'funParams_' ::= {{com Function Parameters }}
-    | y1 , ... , yi :: :: FunStyle
+  alts :: 'Alts_' ::= {{com Alternatives }}
+    | alt1 ; ... ; alti :: :: Alts {{com Sequence of alternatives ($i > 0$)}}
 
-  modSig :: 'modSig_' ::= {{com Module Signature }}
+  alt :: 'Alt_' ::= {{com Alternative }}
+    | altid var1 ... vari :: :: Alt {{com An alternative ($i \geq 0$)}}
+
+  altid :: 'AltId_' ::= {{com Alternative id }}
+    | < num > :: :: Id {{com Id }}
+    {{tex \langle [[num]] \rangle }}    
+
+  binop :: 'BOp_' ::= {{com Binary operations }}
+    | arithop :: :: ArithOp {{com Arithmetic operator }}
+    | relop   :: :: RelOp   {{com Comparison operator }}
+    | boolop  :: :: BoolOp  {{com Boolean operator }}
+
+  arithop :: 'ArithOp_' ::= {{com Arithmetic operator}}
+    | + :: :: Add  {{com Addition }}
+    | - :: :: Subt {{com Subtraction}}
+    | * :: :: Mult {{com Multiplication }}    
+    | / :: :: Div  {{com Division }}
+
+  relop :: 'RelOp_' ::= {{com Comparison operator }}
+    | <   :: :: Less    {{com Less than }}
+    | <=  :: :: Leq     {{com Less than or equal to}}
+    | >   :: :: Greater {{com Greater than }}
+    | >=  :: :: Geq     {{com Greater than or equal to}}
+    | !=  :: :: Neq     {{com Not equal to}}
+    | ==  :: :: Eq      {{com Equal to}}
+
+  boolop :: 'BoolOp_' ::= {{com Boolean operator }}
+    | and :: :: And {{com Conjunction }}
+    | or  :: :: Or  {{com Disjunction }}    
+
+  var :: 'Var_' ::= {{com Variable }}
+    | lalpha varch1 ... varchi :: :: Var {{com A sequence of chars ($i >= 0$)}}
+
+  varch :: 'VarCh_' ::= {{com Variable character }}
+    | lalpha :: :: LAlpha {{com Lowercase character }}
+    | ualpha :: :: UAlpha {{com Uppercase character }}
+    | digit  :: :: Digit  {{com Digit }}    
+    | _      :: :: UScore {{com Underscore }}
+
+  lalpha :: 'Lalpha_' ::= {{com Lowercase character }}
+    | a :: :: A
+    {{tex \text{a} }}
+    | b :: :: B
+    {{tex \text{b} }}
+    | c :: :: C
+    {{tex \text{c} }}
+    | d :: :: D
+    {{tex \text{d} }}
+    | e :: :: E
+    {{tex \text{e} }}
+    | f :: :: F
+    {{tex \text{f} }}
+    | g :: :: G
+    {{tex \text{g} }}
+    | h :: :: H
+    {{tex \text{h} }}
+    | i :: :: I
+    {{tex \text{i} }}
+    | j :: :: J
+    {{tex \text{j} }}
+    | k :: :: K
+    {{tex \text{k} }}
+    | l :: :: L
+    {{tex \text{l} }}
+    | m :: :: M
+    {{tex \text{m} }}
+    | o :: :: O
+    {{tex \text{o} }}
+    | p :: :: P
+    {{tex \text{p} }}
+    | q :: :: Q
+    {{tex \text{q} }}
+    | r :: :: R
+    {{tex \text{r} }}
+    | s :: :: S
+    {{tex \text{s} }}
+    | t :: :: T
+    {{tex \text{t} }}
+    | u :: :: U
+    {{tex \text{u} }}
+    | v :: :: V
+    {{tex \text{v} }}
+    | w :: :: W
+    {{tex \text{w} }}
+    | x :: :: X
+    {{tex \text{x} }}
+    | y :: :: Y
+    {{tex \text{y} }}
+    | z :: :: Z
+    {{tex \text{z} }}
+
+  ualpha :: 'ualpha_' ::= {{com Uppercase character }}
+    | A :: :: A
+    {{tex \text{A} }}
+    | B :: :: B
+    {{tex \text{B} }}
+    | C :: :: C
+    {{tex \text{C} }}
+    | D :: :: D
+    {{tex \text{D} }}
+    | E :: :: E
+    {{tex \text{E} }}
+    | F :: :: F
+    {{tex \text{F} }}
+    | G :: :: G
+    {{tex \text{G} }}
+    | H :: :: H
+    {{tex \text{H} }}
+    | I :: :: I
+    {{tex \text{I} }}
+    | J :: :: J
+    {{tex \text{J} }}
+    | K :: :: K
+    {{tex \text{K} }}
+    | L :: :: L
+    {{tex \text{L} }}
+    | M :: :: M
+    {{tex \text{M} }}
+    | O :: :: O
+    {{tex \text{O} }}
+    | P :: :: P
+    {{tex \text{P} }}
+    | Q :: :: Q
+    {{tex \text{Q} }}
+    | R :: :: R
+    {{tex \text{R} }}
+    | S :: :: S
+    {{tex \text{S} }}
+    | T :: :: T
+    {{tex \text{T} }}
+    | U :: :: U
+    {{tex \text{U} }}
+    | V :: :: V
+    {{tex \text{V} }}
+    | W :: :: W
+    {{tex \text{W} }}
+    | X :: :: X
+    {{tex \text{X} }}
+    | Y :: :: Y
+    {{tex \text{Y} }}
+    | Z :: :: Z
+    {{tex \text{Z} }}
   
-  K :: 'kinds_' ::= {{com Kinds }}
+  num :: 'Num_' ::= {{com Number }}
+    | digit1 ... digiti :: :: Num {{com Sequence of digits }}
 
-  T :: 'types_' ::= {{com Types }}
-    | ? :: :: Dynamic {{com The dynamic type. }}
+  digit :: 'Digit_' ::= {{com Digit }}
+    | 0 :: :: Zero
+    | 1 :: :: One
+    | 2 :: :: Two
+    | 3 :: :: Three
+    | 4 :: :: Four
+    | 5 :: :: Five
+    | 6 :: :: Six
+    | 7 :: :: Seven
+    | 8 :: :: Eight
+    | 9 :: :: Nine
 
-  terminals :: 'terminals_' ::=
+  terminals :: 'terminals_' ::=    
+    | space     :: :: space    
+    {{tex \, }}
+    | and    :: :: And
+    {{tex \& }}
+    | or     :: :: Or
+    {{tex | }}
+    | Pack   :: :: Pack
+    {{tex \mathsf{Pack} }}
+    | <      :: :: Less
+    {{tex < }}
+    | >      :: :: Greater
+    {{tex > }}
+    | <=     :: :: Leq
+    {{tex \leq }}
+    | >=     :: :: Geq
+    {{tex \geq }}
+    | !=     :: :: Neq
+    {{tex \neq }}
+    | \l     :: :: Lambda
+    {{tex \lambda }}
     | ->     :: :: Arrow
     {{tex \rightarrow }}
     | module :: :: Module
@@ -67,3 +230,13 @@ grammar
     {{tex \mathsf{import} }}
     | hiding :: :: Hiding
     {{tex \mathsf{hiding} }}
+    | let :: :: Let
+    {{tex \mathsf{let} }}
+    | letrec :: :: LetRec
+    {{tex \mathsf{letrec} }}
+    | case :: :: Case
+    {{tex \mathsf{case} }}
+    | of :: :: Of
+    {{tex \mathsf{of} }}
+    | in :: :: In
+    {{tex \mathsf{in} }}
