@@ -3,3 +3,6 @@
 /docs/specification/owl.tex
 /docs/owl.wiki/
 *~
+/src/OwlCore/OwlCore.cabal
+/src/OwlCore/src/Parser/Lexer.hs
+*.lock

@@ -181,7 +181,7 @@ grammar
     {{tex \text{Z} }}
   
   num :: 'Num_' ::= {{com Number }}
-    | digit1 ... digiti :: :: Num {{com Sequence of digits }}
+    | digit1 ... digiti :: :: Num {{com Sequence of digits ($i > 0$) }}
 
   digit :: 'Digit_' ::= {{com Digit }}
     | 0 :: :: Zero
