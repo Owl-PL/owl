@@ -1,41 +1,50 @@
 {
 -- The Alex lexer.
-module Parser.Lexer where
+module Parser.Lexer (Token(..),Alex,lexerCore, alexEOF) where
+
+import Control.Monad.State
+import Control.Monad.Except
+import Data.Word
+
 }
 
-%wrapper "posn"
+%wrapper "monad"
 
 $digit = 0-9
 $lalpha = a-z
 $ualpha = A-Z
-$defsym = [\=\;\{\}\(\)\,\.]
+$defsym = [\= \; \{ \} \( \) \, \.]
 $varch = [a-zA-Z0-9\_]
 $arithop = [\+\-\*\/]
-$relop = [\< \<\= \> \>\= \~\= \=\=]
+$relop = [\< \<\= \> \>\= !\= \=\=]
 $boolop = [\&\|]
 
 tokens :-
   $white+ ;
   "--".*  ;
-  let                       {tok (\p s -> Let p)}
-  letrec                    {tok (\p s -> LetRec p)}
-  case                      {tok (\p s -> Case p)}
-  in                        {tok (\p s -> In p)}
-  of                        {tok (\p s -> Of p)}
-  Pack                      {tok (\p s -> Pack p)}
-  $digit+                   {tok (\p s -> Num p (read s))}
-  $lalpha $varch*           {tok (\p s -> Var p s)}
+  fun                        {tok (\p s -> Fun p)}
+  let                        {tok (\p s -> Let p)}
+  letrec                     {tok (\p s -> LetRec p)}
+  case                       {tok (\p s -> Case p)}
+  in                         {tok (\p s -> In p)}
+  of                         {tok (\p s -> Of p)}
+  Pack                       {tok (\p s -> Pack p)}
+  $digit+                    {tok (\p s -> Num p (read s))}
+  $lalpha $varch*            {tok (\p s -> Var p s)}
   "<"$digit+">"              {tok (\p s -> AltId p s)}
-  [$arithop $relop $boolop] {tok (\p s -> Binop p (head s))}
-  $defsym                   {tok (\p s -> Sym p (head s))}
+  [$arithop $relop $boolop]  {tok (\p s -> Binop p s)}
+  $defsym                    {tok (\p s -> Sym p s)}
 
 {
 
-tok f p s = f p s
+-- Wraps `token` to make it easier to get the position and the input string.
+tok :: (AlexPosn -> String -> Token) -> AlexAction Token
+tok f (pos,prev,rest,str) = token (\input len -> f pos str) (pos,prev,rest,str)
 
 -- The tokens:
 data Token
-  = Let        AlexPosn
+  = Fun        AlexPosn
+  | Let        AlexPosn
   | LetRec     AlexPosn
   | Case       AlexPosn
   | In         AlexPosn
@@ -44,23 +53,17 @@ data Token
   | Num        AlexPosn Int    
   | Var        AlexPosn String
   | AltId      AlexPosn String
-  | Binop      AlexPosn Char
-  | Sym        AlexPosn Char
+  | Binop      AlexPosn String
+  | Sym        AlexPosn String
+  | EOF        
   deriving (Eq,Show)
 
-token_posn (Let p)      = p
-token_posn (LetRec p)   = p
-token_posn (Case p)     = p
-token_posn (In p)       = p
-token_posn (Of p)       = p
-token_posn (Pack p)     = p
-token_posn (Num p _)    = p
-token_posn (Var p _)    = p
-token_posn (AltId p _)  = p
-token_posn (Binop p _)  = p
-token_posn (Sym p _)    = p
+alexEOF :: Alex Token
+alexEOF = return EOF
 
-runLexer = do
-  s <- getContents
-  print (alexScanTokens s)
+lexerCore :: (Token -> Alex result) -> Alex result
+lexerCore cont = do
+    token <- alexMonadScan
+    cont token
+
 }

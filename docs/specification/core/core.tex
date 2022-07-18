@@ -56,7 +56,7 @@
 \ottprodline{|}{\mathsf{let} \, \ottnt{defs} \, \mathsf{in} \, \ottnt{expr}}{}{}{}{\ottcom{Local definition}}\ottprodnewline
 \ottprodline{|}{\mathsf{letrec} \, \ottnt{defs} \, \mathsf{in} \, \ottnt{expr}}{}{}{}{\ottcom{Local recursive definition}}\ottprodnewline
 \ottprodline{|}{\mathsf{case} \, \ottnt{expr} \, \mathsf{of} \, \ottnt{alts}}{}{}{}{\ottcom{Case expression}}\ottprodnewline
-\ottprodline{|}{\lambda  \ottnt{var_{{\mathrm{1}}}} \, ... \, \ottnt{var_{\ottmv{i}}}  \ottsym{.}  \ottnt{expr}}{}{}{}{\ottcom{Lambda abstraction ($i > 0$)}}\ottprodnewline
+\ottprodline{|}{\mathsf{fun} \, \ottsym{(}  \ottnt{var_{{\mathrm{1}}}}  \ottsym{,} \, ... \, \ottsym{,}  \ottnt{var_{\ottmv{i}}}  \ottsym{)}  \rightarrow  \ottnt{expr}}{}{}{}{\ottcom{Lambda abstraction ($i > 0$)}}\ottprodnewline
 \ottprodline{|}{\ottnt{aexpr}}{}{}{}{\ottcom{Atomic expression}}}
 
 \newcommand{\ottaexpr}{

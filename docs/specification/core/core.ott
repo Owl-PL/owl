@@ -14,13 +14,13 @@ grammar
     | var space var1 ... vari = expr :: :: SC {{com Combinator ($i > 0$)}}
 
   expr :: 'Expr_' ::= {{com Expressions }}
-    | expr aexpr              :: :: Application {{com Application }}
-    | expr1 binop expr2       :: :: IBin        {{com Infix binary application }}
-    | let defs in expr        :: :: LocalDef    {{com Local definition }}
-    | letrec defs in expr     :: :: Rec         {{com Local recursive definition }}    
-    | case expr of alts       :: :: Case        {{com Case expression }}
-    | \l var1 ... vari . expr :: :: Lambda      {{com Lambda abstraction ($i > 0$)}}
-    | aexpr                   :: :: Atomic      {{com Atomic expression }}
+    | expr aexpr                        :: :: Application {{com Application }}
+    | expr1 binop expr2                 :: :: IBin        {{com Infix binary application }}
+    | let defs in expr                  :: :: LocalDef    {{com Local definition }}
+    | letrec defs in expr               :: :: Rec         {{com Local recursive definition }}    
+    | case expr of alts                 :: :: Case        {{com Case expression }}
+    | fun ( var1 , ... , vari ) -> expr :: :: Lambda      {{com Lambda abstraction ($i > 0$)}}
+    | aexpr                             :: :: Atomic      {{com Atomic expression }}
 
   aexpr :: 'AExpr_' ::= {{com Atomic expression }}
     | var                  :: :: Variable  {{com Variable }}
@@ -214,8 +214,8 @@ grammar
     {{tex \geq }}
     | !=     :: :: Neq
     {{tex \neq }}
-    | \l     :: :: Lambda
-    {{tex \lambda }}
+    | fun     :: :: Lambda
+    {{tex \mathsf{fun} }}
     | ->     :: :: Arrow
     {{tex \rightarrow }}
     | module :: :: Module
