@@ -10,9 +10,6 @@ import qualified Parser.Lexer as Lexer
 %tokentype { Lexer.Token }
 %error { parseError }
 
-%monad { Lexer.Alex  }
-%lexer { Lexer.lexerCore } { Lexer.EOF }
-
 %token
       fun    { Lexer.Fun _ }
       let    { Lexer.Let _ }
@@ -43,9 +40,9 @@ Prog : Prog ';' SC { $3 : $1  }
      | SC          { [$1]     }
      | {- empty -} { []       }
 
-vars : var         { [$1]  }
-     | vars var    { $2:$1 }
-     | {- empty -} { []    }
+vars : var             { [$1]  }
+     | vars var        { $2:$1 }
+     | {- empty -}     { []    }
 
 cvars : cvars ',' var { $3 : $1 }
       | var           { [$1]    }
@@ -77,8 +74,9 @@ AExpr : var                      { Var $1     }
 
 {
   
-data Prog = Prog [SC]
+type Prog = [SC]
 data SC = SC String [String] Expr
+  deriving (Show,Eq)
 
 data Expr
   = App Expr AExpr
@@ -88,18 +86,23 @@ data Expr
   | Case Expr [Alt]
   | Fun [String] Expr
   | Atomic AExpr
+  deriving (Show,Eq)  
 
 data AExpr
   = Var String
   | Num Int
   | Pack Int Int
   | Paren Expr
+  deriving (Show,Eq)  
 
 data Def = Def String Expr
+  deriving (Show,Eq)
 -- The string here should be Int.
 data Alt = Alt String [String]
+  deriving (Show,Eq)
 
-parseError :: Lexer.Token -> Lexer.Alex a
-parseError _ = error "Parse Error!"
+parseError tk = error $ "Parse Error: "++(show tk)
+
+parse s = parseCore (Lexer.alexScanTokens $ s)
 
 }

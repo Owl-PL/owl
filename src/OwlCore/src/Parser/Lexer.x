@@ -1,6 +1,6 @@
 {
 -- The Alex lexer.
-module Parser.Lexer (Token(..),Alex,lexerCore, alexEOF) where
+module Parser.Lexer (Token(..), alexScanTokens) where
 
 import Control.Monad.State
 import Control.Monad.Except
@@ -8,16 +8,17 @@ import Data.Word
 
 }
 
-%wrapper "monad"
+%wrapper "posn"
 
-$digit = 0-9
-$lalpha = a-z
-$ualpha = A-Z
-$defsym = [\= \; \{ \} \( \) \, \.]
-$varch = [a-zA-Z0-9\_]
+$digit   = 0-9
+$lalpha  = a-z
+$ualpha  = A-Z
+$defsym  = [\= \; \{ \} \( \) \, \.]
+$varch   = [a-z A-Z 0-9 \_]
 $arithop = [\+\-\*\/]
-$relop = [\< \<\= \> \>\= !\= \=\=]
-$boolop = [\&\|]
+$boolop  = [\&\|]
+
+@var     = $lalpha $varch*
 
 tokens :-
   $white+ ;
@@ -29,17 +30,22 @@ tokens :-
   in                         {tok (\p s -> In p)}
   of                         {tok (\p s -> Of p)}
   Pack                       {tok (\p s -> Pack p)}
-  $digit+                    {tok (\p s -> Num p (read s))}
-  $lalpha $varch*            {tok (\p s -> Var p s)}
+  $digit+                    {tok (\p s -> Num p (read s))}  
   "<"$digit+">"              {tok (\p s -> AltId p s)}
-  [$arithop $relop $boolop]  {tok (\p s -> Binop p s)}
-  $defsym                    {tok (\p s -> Sym p s)}
+  ">"                        {tok (\p s -> Binop p ">")}
+  ">="                       {tok (\p s -> Binop p ">=")}
+  "<"                        {tok (\p s -> Binop p "<")}
+  "<="                       {tok (\p s -> Binop p "<=")}
+  "!="                       {tok (\p s -> Binop p "!=")}
+  "=="                       {tok (\p s -> Binop p "==")}
+  [$arithop $boolop]         {tok (\p s -> Binop p s)}
+  $defsym                    {tok (\p s -> Sym p (head (words s)))}
+  @var                       {tok (\p s -> Var p s)}
 
 {
 
 -- Wraps `token` to make it easier to get the position and the input string.
-tok :: (AlexPosn -> String -> Token) -> AlexAction Token
-tok f (pos,prev,rest,str) = token (\input len -> f pos str) (pos,prev,rest,str)
+tok f p s = f p s
 
 -- The tokens:
 data Token
@@ -55,15 +61,6 @@ data Token
   | AltId      AlexPosn String
   | Binop      AlexPosn String
   | Sym        AlexPosn String
-  | EOF        
   deriving (Eq,Show)
-
-alexEOF :: Alex Token
-alexEOF = return EOF
-
-lexerCore :: (Token -> Alex result) -> Alex result
-lexerCore cont = do
-    token <- alexMonadScan
-    cont token
 
 }
