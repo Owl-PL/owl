@@ -101,8 +101,10 @@ data Def = Def String Expr
 data Alt = Alt String [String]
   deriving (Show,Eq)
 
-parseError tk = error $ "Parse Error: "++(show tk)
+parseError :: [Lexer.Token] -> a
+parseError tks = error $ "Parse Error: "++(show tks)
 
+parse :: String -> [SC]
 parse s = parseCore (Lexer.alexScanTokens $ s)
 
 }
