@@ -1,6 +1,5 @@
 module Lib
-    ( someFunc
+    ( module Repl.Repl
     ) where
 
-someFunc :: IO ()
-someFunc = putStrLn "someFunc"
+import Repl.Repl
