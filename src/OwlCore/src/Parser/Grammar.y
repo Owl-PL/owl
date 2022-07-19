@@ -3,10 +3,11 @@
 module Parser.Grammar where
 
 import qualified Parser.Lexer as Lexer
+import qualified Syntax.AST as AST  
 
 }
 
-%name parseCore
+%name parse
 %tokentype { Lexer.Token }
 %error { parseError }
 
@@ -47,64 +48,37 @@ vars : var             { [$1]  }
 cvars : cvars ',' var { $3 : $1 }
       | var           { [$1]    }
 
-SC : var vars '=' Expr { SC $1 $2 $4 }
+SC : var vars '=' Expr { AST.SC $1 $2 $4 }
 
-def : var '=' Expr { Def $1 $3 }
+def : var '=' Expr { AST.Def $1 $3 }
 
 defs : defs ';' def { $3 : $1 }
      | def          { [$1]    }
 
-alt : altid vars  { Alt $1 $2  }
+alt : altid vars  { AST.Alt $1 $2  }
 
 alts : alts ';' alt { $3 : $1 }
      | alt          { [$1]    }
 
-Expr : Expr AExpr                  { App $1 $2      }
-     | Expr binop Expr             { Binop $2 $1 $3 }
-     | let defs in Expr            { Let $2 $4      }
-     | letrec defs in Expr         { LetRec $2 $4   }
-     | case Expr of alts           { Case $2 $4     }
-     | fun '(' cvars ')' '->' Expr { Fun $3 $6      }
-     | AExpr                       { Atomic $1      }
+Expr : Expr AExpr                  { AST.App $1 $2      }
+     | Expr binop Expr             { AST.Binop $2 $1 $3 }
+     | let defs in Expr            { AST.Let $2 $4      }
+     | letrec defs in Expr         { AST.LetRec $2 $4   }
+     | case Expr of alts           { AST.Case $2 $4     }
+     | fun '(' cvars ')' '->' Expr { AST.Fun $3 $6      }
+     | AExpr                       { AST.Atomic $1      }
 
-AExpr : var                      { Var $1     }
-      | num                      { Num $1     }
-      | Pack '{' num ',' num '}' { Pack $3 $5 }
-      | '(' Expr ')'             { Paren $2   }
+AExpr : var                      { AST.Var $1     }
+      | num                      { AST.Num $1     }
+      | Pack '{' num ',' num '}' { AST.Pack $3 $5 }
+      | '(' Expr ')'             { AST.Paren $2   }
 
 {
-  
-type Prog = [SC]
-data SC = SC String [String] Expr
-  deriving (Show,Eq)
-
-data Expr
-  = App Expr AExpr
-  | Binop String Expr Expr
-  | Let [Def] Expr
-  | LetRec [Def] Expr
-  | Case Expr [Alt]
-  | Fun [String] Expr
-  | Atomic AExpr
-  deriving (Show,Eq)  
-
-data AExpr
-  = Var String
-  | Num Int
-  | Pack Int Int
-  | Paren Expr
-  deriving (Show,Eq)  
-
-data Def = Def String Expr
-  deriving (Show,Eq)
--- The string here should be Int.
-data Alt = Alt String [String]
-  deriving (Show,Eq)
 
 parseError :: [Lexer.Token] -> a
 parseError tks = error $ "Parse Error: "++(show tks)
 
-parse :: String -> [SC]
-parse s = parseCore (Lexer.alexScanTokens $ s)
+parseCore :: String -> [AST.SC]
+parseCore s = parse (Lexer.alexScanTokens $ s)
 
 }
