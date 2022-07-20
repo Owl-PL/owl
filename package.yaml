@@ -1,0 +1,51 @@
+name:                owl
+version:             0.1.0.0
+github:              "githubuser/owl"
+license:             BSD3
+author:              "Harley Eades III"
+maintainer:          "harley.eades@gmail.com"
+copyright:           "2022 Harley Eades III"
+
+extra-source-files:
+- README.md
+- ChangeLog.md
+
+# Metadata used when publishing your package
+# synopsis:            Short description of your package
+# category:            Web
+
+# To avoid duplicated efforts in documentation and dealing with the
+# complications of embedding Haddock markup inside cabal files, it is
+# common to point users to the README.md file.
+description:         Please see the README on GitHub at <https://github.com/githubuser/owl#readme>
+
+dependencies:
+- base      >= 4.7 && < 5
+- array     >= 0.5 && < 0.6
+- mtl       >= 2.2 && < 2.3
+- haskeline >= 0.8 && < 0.9
+
+library:
+  source-dirs: src
+
+executables:
+  owl-exe:
+    main:                Main.hs
+    source-dirs:         app
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - owl
+
+tests:
+  owl-test:
+    main:                Spec.hs
+    source-dirs:         test
+    ghc-options:
+    - -threaded
+    - -rtsopts
+    - -with-rtsopts=-N
+    dependencies:
+    - owl

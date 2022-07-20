@@ -6,3 +6,6 @@
 /src/OwlCore/OwlCore.cabal
 /src/OwlCore/src/Parser/Lexer.hs
 *.lock
+/owl.cabal
+/stack.yaml
+/src/OwlCore/Parser/Lexer.hs
