@@ -2,6 +2,7 @@ module OwlCore.Repl.Repl where
 
 import Globals
 import qualified OwlCore.Syntax.AST as AST
+import qualified OwlCore.Syntax.PPrint as PPrint
 import qualified OwlCore.Parser.Grammar as Parser
   
 import System.Console.Haskeline
