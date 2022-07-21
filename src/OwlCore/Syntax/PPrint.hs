@@ -173,10 +173,10 @@ markupExpr (AST.Binop op e1 e2) =
      space
      markupExpr e2
 
-markupExpr (AST.Let [def] e) =
+markupExpr (AST.Let defs e) =
   do string "let"
      space
-     markupDef def
+     markupDefs defs
      space
      string "in"
      space
