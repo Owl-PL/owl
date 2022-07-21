@@ -25,8 +25,7 @@ data AExpr
 data Def = Def String Expr
   deriving (Show,Eq)
 
--- The string here should be Int.
-data Alt = Alt String [String] Expr
+data Alt = Alt Int [String] Expr
   deriving (Show,Eq)
 
 

@@ -1,8 +1,8 @@
 {
 
-module OwlCore.Parser.Grammar where
+module OwlCore.Syntax.Parser where
 
-import qualified OwlCore.Parser.Lexer as Lexer
+import qualified OwlCore.Syntax.Lexer as Lexer
 import qualified OwlCore.Syntax.AST as AST  
 
 }

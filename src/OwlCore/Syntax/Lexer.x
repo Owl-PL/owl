@@ -1,6 +1,6 @@
 {
 -- The Alex lexer.
-module OwlCore.Parser.Lexer (Token(..), alexScanTokens) where
+module OwlCore.Syntax.Lexer (Token(..), alexScanTokens) where
 
 import Control.Monad.State
 import Control.Monad.Except
@@ -31,7 +31,7 @@ tokens :-
   of                         {tok (\p s -> Of p)}
   Pack                       {tok (\p s -> Pack p)}
   $digit+                    {tok (\p s -> Num p (read s))}  
-  "<"$digit+">"              {tok (\p s -> AltId p s)}
+  "<"$digit+">"              {tok (\p s -> AltId p (read s))}
   ">"                        {tok (\p s -> Binop p ">")}
   ">="                       {tok (\p s -> Binop p ">=")}
   "<"                        {tok (\p s -> Binop p "<")}
@@ -58,7 +58,7 @@ data Token
   | Pack       AlexPosn
   | Num        AlexPosn Int    
   | Var        AlexPosn String
-  | AltId      AlexPosn String
+  | AltId      AlexPosn Int
   | Binop      AlexPosn String
   | Sym        AlexPosn String
   deriving (Eq,Show)

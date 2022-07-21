@@ -3,7 +3,7 @@ module OwlCore.Repl.Repl where
 import Globals
 import qualified OwlCore.Syntax.AST as AST
 import qualified OwlCore.Syntax.PPrint as PPrint
-import qualified OwlCore.Parser.Grammar as Parser
+import qualified OwlCore.Syntax.Parser as Parser
   
 import System.Console.Haskeline
 import Control.Monad.State.Lazy
@@ -63,6 +63,7 @@ repl = do
            case inputM of
                Nothing -> return ()
                Just ":q" -> return ()
+               Just "" -> innerLoop config
                Just input -> do                 
                  outputStrLn . (PPrint.pprint) $ Parser.parseCore input
                  innerLoop config

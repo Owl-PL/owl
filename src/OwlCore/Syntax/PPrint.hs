@@ -141,7 +141,7 @@ markupDefs (def : defs) =
 markupAlt :: AST.Alt -> MarkupState String ()
 markupAlt (AST.Alt altid vars body)  =
   do string "<"
-     string altid
+     string . show $ altid
      string ">"
      space
      (string . unwords $ vars)
@@ -232,15 +232,9 @@ markup (sc : prog) =
      newline
      markupSC sc          
      
-
 runMarkup :: AST.Prog -> Markup String
 runMarkup prog = snd $ execState (markup prog) (0, Nil)
 
 pprint :: AST.Prog -> String
 pprint = printMarkup . runMarkup  
 
--- example = show $ evalState (
---   string "1"
---     <++> newline
---     <++> indent
---     <++> string "2") 1
