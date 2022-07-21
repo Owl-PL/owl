@@ -85,9 +85,8 @@ instance Show Name where
   show = nameToString
 
 genName' :: Int -> Gen Name
-genName' n = do
-  vs <- vector n
-  return $ Name vs
+genName' n = do vs <- vector $ if n > 0 then n else 1
+                return $ Name vs
 
 instance Arbitrary Name where
   arbitrary = sized genName'
@@ -103,7 +102,7 @@ genNames = do
   return $ map show ns
  where
    genNames' :: Gen [Name]
-   genNames' = sized vector
+   genNames' = sized $ \n -> vector $ if n > 0 then n else 1
 
 newtype Digit = Digit Int
 
@@ -114,7 +113,9 @@ instance Arbitrary Digit where
        
 newtype Nat = Nat [Digit]
 
-genNat' = sized $ \n -> vector n >>= \ns -> return (Nat ns)
+genNat' = sized $ \n ->
+  do ns <- vector $ if n > 0 then n else 1
+     return (Nat ns)
 
 instance Arbitrary Nat where
   arbitrary = genNat'  
@@ -131,42 +132,58 @@ genNat = do
   n <- genNat'
   return . natToInt $ n
 
+
+genBinop :: Gen String
+genBinop = oneof [return ">",
+                  return "<" ,
+                  return "<=",
+                  return ">=",
+                  return "+",
+                  return "-",
+                  return "\\",
+                  return "*",
+                  return "&",
+                  return "|",
+                  return "==",
+                  return "!="]
+
 aExprGen :: Gen AExpr
 aExprGen = sized aExprGen'
 
 aExprGen' :: Int -> Gen AExpr
-aExprGen' 0 = oneof [liftM Var genName,
+aExprGen' n | n > 1 = liftM Paren (exprGen' (n `div` 2))
+aExprGen' _ = oneof [liftM Var genName,
                      liftM Num genNat,
                      liftM2 Pack genNat genNat]
-aExprGen' n | n > 0 = liftM Paren (exprGen' (n `div` 2))
 
 exprGen :: Gen Expr
 exprGen = sized exprGen'
 
 exprGen' :: Int -> Gen Expr
-exprGen' 0 = oneof [liftM (Atomic . Var) genName,
-                    liftM (Atomic . Num) genNat,
-                    liftM2 (\n m -> Atomic (Pack n m)) genNat genNat]
-exprGen' n | n > 0 = oneof [liftM (Atomic . Paren) expr,
+exprGen' n | n > 1 = oneof [liftM (Atomic . Paren) expr,
                             liftM2 App expr aexpr,
-                            liftM3 Binop arbitrary expr expr,
+                            liftM3 Binop genBinop expr expr,
                             liftM2 Let defs expr,
                             liftM2 LetRec defs expr,
                             liftM2 Case expr alts,
-                            liftM2 Fun arbitrary expr]
+                            liftM2 Fun genNames expr]
   where
-    expr = exprGen'   (n `div` 2)
-    aexpr = aExprGen' (n `div` 2)
-    defs = defsGen'   (n `div` 2)
-    alts = altsGen'   (n `div` 2)
-
+    expr  = resize (n `div` 2) exprGen
+    aexpr = resize (n `div` 2) aExprGen
+    defs  = resize (n `div` 2) defsGen
+    alts  = resize (n `div` 2) altsGen
+                                
+exprGen' _ = oneof [liftM (Atomic . Var) genName,
+                    liftM (Atomic . Num) genNat,
+                    liftM2 (\n m -> Atomic (Pack n m)) genNat genNat]
+             
 defGen :: Gen Def
 defGen = sized defGen'
 
 defGen' :: Int -> Gen Def
 defGen' n = liftM2 Def genName expr
   where
-    expr = exprGen' (n `div` 1)
+    expr = resize (n `div` 2) exprGen
 
 instance Arbitrary Def where
   arbitrary = defGen
@@ -175,15 +192,15 @@ defsGen :: Gen [Def]
 defsGen = sized defsGen'
 
 defsGen' :: Int -> Gen [Def]
-defsGen' = vector
+defsGen' n = vector $ if n > 0 then n else 1
 
 altGen :: Gen Alt
 altGen = sized altGen'
 
 altGen' :: Int -> Gen Alt
-altGen' n = liftM3 Alt arbitrary genNames expr
+altGen' n = liftM3 Alt genNat genNames expr
   where
-    expr = exprGen' (n `div` 1)
+    expr = resize (n `div` 2) exprGen
 
 instance Arbitrary Alt where
   arbitrary = altGen
@@ -192,8 +209,7 @@ altsGen :: Gen [Alt]
 altsGen = sized altsGen'
 
 altsGen' :: Int -> Gen [Alt]
-altsGen' n = vector n
-
+altsGen' n = vector $ if n > 0 then n else 1           
 instance Arbitrary Expr where
   arbitrary = exprGen
 

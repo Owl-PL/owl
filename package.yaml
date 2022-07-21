@@ -24,6 +24,7 @@ dependencies:
 - array     >= 0.5 && < 0.6
 - mtl       >= 2.2 && < 2.3
 - haskeline >= 0.8 && < 0.9
+- QuickCheck >= 2.14 && < 2.15
 
 library:
   source-dirs: src

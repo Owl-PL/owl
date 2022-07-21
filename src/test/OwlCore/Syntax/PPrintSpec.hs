@@ -15,8 +15,10 @@ runMarkupExpr expr = snd $ execState (markupExpr expr) (0, Nil)
 pprintExpr :: AST.Expr -> String
 pprintExpr = printMarkup . runMarkupExpr
 
+prop e1 e2 = pprintExpr (lessVExpr e1 e2) `shouldBe` ((pprintExpr e1) ++ " < " ++ (pprintExpr e2))
+
 spec :: Spec
 spec = do
   describe "pprint" $ do
-    it "a valid less-than expression" $ property $
-      \e1 e2 -> pprintExpr (lessVExpr e1 e2) `shouldBe` ((pprintExpr e1) ++ " < " ++ (pprintExpr e2))
+    it "a valid less-than expression" $ property prop
+      
