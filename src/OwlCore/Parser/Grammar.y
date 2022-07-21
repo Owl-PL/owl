@@ -55,7 +55,7 @@ def : var '=' Expr { AST.Def $1 $3 }
 defs : defs ';' def { $3 : $1 }
      | def          { [$1]    }
 
-alt : altid vars  { AST.Alt $1 $2  }
+alt : altid vars '->' Expr  { AST.Alt $1 $2 $4 }
 
 alts : alts ';' alt { $3 : $1 }
      | alt          { [$1]    }

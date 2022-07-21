@@ -2,6 +2,8 @@ module OwlCore.Syntax.PPrint where
 
 import qualified OwlCore.Syntax.AST as AST
 
+import Control.Monad.State.Lazy
+
 type IndentLevel = Int
 
 data Markup a
@@ -9,6 +11,7 @@ data Markup a
   | Str a
   | Append (Markup a) (Markup a)
   | Newline IndentLevel
+  deriving Show
 
 ret :: a -> Markup a
 ret st = Str st
@@ -45,8 +48,8 @@ instance (Monad Markup) where
   return = ret
   (>>=) = bind
 
-space :: IndentLevel -> String
-space indent = take indent $ repeat ' '
+indentLevel :: IndentLevel -> String
+indentLevel indent = take indent $ repeat ' '
 
 flatten :: [Markup String] -> String
 
@@ -63,19 +66,181 @@ flatten (Append m1 m2 : ms)
   = flatten (m1 : m2 : ms)
 
 flatten ((Newline indent) : ms)
-  = "\n" ++ (space indent) ++ (flatten ms)
+  = "\n" ++ (indentLevel indent) ++ (flatten ms)
 
 printMarkup :: Markup String -> String
 printMarkup m = flatten [m]
 
-(<++>) :: Markup a -> Markup a -> Markup a
-m1 <++> m2 = Append m1 m2
+-- A state monad that keeps track of the current indention level
+-- during markup.
+type MarkupState a r = State (IndentLevel, Markup a) r
 
-(++>) :: a -> Markup a -> Markup a
-s ++> m = (return s) <++> m
+indentMany :: IndentLevel -> MarkupState a ()
+indentMany i = do
+  (indent, m) <- get
+  put ((indent + i), m)
 
-markup :: AST.Prog -> Markup String
-markup = undefined
+indent :: MarkupState a ()
+indent = indentMany 1
+
+string :: a -> MarkupState a ()
+string s = do
+  (indent, m) <- get
+  put (indent, Append m (Str s))
+
+newline :: MarkupState a ()
+newline = do
+  (indent, m) <- get
+  put $ (indent, Append m (Newline indent))
+
+semicolon :: MarkupState String ()
+semicolon = string ";"
+
+equal :: MarkupState String ()
+equal = string "="
+
+space :: MarkupState String ()
+space = string " "
+
+markupAExpr :: AST.AExpr -> MarkupState String ()
+markupAExpr (AST.Var x) = string x
+markupAExpr (AST.Num i) = string . show $ i
+markupAExpr (AST.Pack i1 i2) =
+  do string "Pack"
+     space
+     string "{"
+     (string . show $ i1)
+     string ","
+     space
+     (string . show $ i2)
+     string "}"
+  
+markupAExpr (AST.Paren e) =
+  do string "("
+     markupExpr e
+     string ")"
+
+markupDef :: AST.Def -> MarkupState String ()
+markupDef (AST.Def name body) =
+  do string name
+     space
+     equal
+     space
+     markupExpr body
+
+markupDefs :: [AST.Def] -> MarkupState String ()
+markupDefs [] = return ()
+markupDefs [def] = markupDef def
+markupDefs (def : defs) =
+  do markupDef def
+     semicolon
+     indentMany 4
+     newline
+     markupDefs defs
+
+markupAlt :: AST.Alt -> MarkupState String ()
+markupAlt (AST.Alt altid vars body)  =
+  do string "<"
+     string altid
+     string ">"
+     space
+     (string . unwords $ vars)
+     space
+     string "->"
+     space
+     markupExpr body
+
+markupAlts :: [AST.Alt] -> MarkupState String ()
+markupAlts []    = return ()
+markupAlts [alt] = markupAlt alt
+markupAlts (alt : alts) =
+  do markupAlt alt
+     semicolon
+     newline
+     markupAlts alts
+
+markupExpr :: AST.Expr -> MarkupState String ()
+
+markupExpr (AST.App e ae) =
+  do markupExpr e
+     space
+     markupAExpr ae
+  
+markupExpr (AST.Binop op e1 e2) =
+  do markupExpr e1
+     space
+     string op
+     space
+     markupExpr e2
+
+markupExpr (AST.Let [def] e) =
+  do string "let"
+     space
+     markupDef def
+     space
+     string "in"
+     space
+     markupExpr e
+
+markupExpr (AST.LetRec defs e) =
+  do string "letrec"
+     space
+     markupDefs defs
+     space
+     string "in"
+     space
+     markupExpr e
+  
+markupExpr (AST.Case e alts) =
+  do string "case"
+     space
+     markupExpr e
+     space
+     string "of"
+     space
+     markupAlts alts
+
+markupExpr (AST.Fun binders e) =
+  do string "fun"
+     space
+     string "("
+     (string . unwords $ binders)
+     string ")"
+     space
+     string "->"
+     space
+     markupExpr e
+
+markupExpr (AST.Atomic ae) = markupAExpr ae
+
+markupSC :: AST.SC -> MarkupState String ()
+markupSC (AST.SC name args body) =
+  do string name
+     space
+     (string.unwords $ args)
+     space
+     equal
+     space
+     markupExpr body
+  
+markup :: AST.Prog -> MarkupState String ()
+markup [] = return ()
+markup [sc] = markupSC sc
+markup (sc : prog) =
+  do markup prog
+     semicolon
+     newline
+     markupSC sc          
+     
+
+runMarkup :: AST.Prog -> Markup String
+runMarkup prog = snd $ execState (markup prog) (0, Nil)
 
 pprint :: AST.Prog -> String
-pprint = printMarkup . markup
+pprint = printMarkup . runMarkup  
+
+-- example = show $ evalState (
+--   string "1"
+--     <++> newline
+--     <++> indent
+--     <++> string "2") 1

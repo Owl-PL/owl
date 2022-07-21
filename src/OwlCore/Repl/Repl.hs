@@ -64,8 +64,8 @@ repl = do
                Nothing -> return ()
                Just ":q" -> return ()
                Just input -> do                 
-                 outputStrLn . show $ Parser.parseCore input
-                 loop config
+                 outputStrLn . (PPrint.pprint) $ Parser.parseCore input
+                 innerLoop config
 
 -- The main function of the repl. `Main.main` simply calls this
 -- function.
