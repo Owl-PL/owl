@@ -208,12 +208,20 @@ markupExpr (AST.Case e alts) =
 markupExpr (AST.Fun binders e) =
   do string "fun "
      string "("
-     (string . unwords $ binders)
+     markupBinders binders
      string ")"
      string " -> "
      markupExpr e
 
 markupExpr (AST.Atomic ae) = markupAExpr ae
+
+markupBinders :: [String] -> MarkupState String ()
+markupBinders [] = string ""
+markupBinders [b] = string b
+markupBinders (b : bs) = do
+  markupBinders bs  
+  string ", "
+  string b
 
 markupSC :: AST.SC -> MarkupState String ()
 markupSC (AST.SC name args body) =

@@ -250,3 +250,9 @@ e1 = Let [Def "cL" (Atomic (Var "0")),Def "Rg" (Atomic (Pack 90 90))] (Let [Def 
 
 e2 = Case (LetRec [Def "W" (Atomic (Pack 70 80))] (Atomic (Num 80))) [Alt 740 ["y0","Rp"] (Atomic (Pack 30 10)),Alt 320 ["PS","SB"] (Atomic (Num 20))]
 
+e3 = Fun ["vcj5","oeVW","npKL","ay8N"] (Fun ["je","tm"] (Atomic (Pack 20 40)))
+
+e4 = LetRec [Def "cfp" (Atomic (Num 0)),Def "lMw" (Atomic (Var "y")),Def "tka" (Atomic (Pack 50 20))] (Fun ["cSp","qHd","rrD"] (Atomic (Pack 70 50)))
+
+e5 = Binop "==" (Let [Def "i" (Atomic (Pack 80 30))] (Atomic (Num 30)))
+                (Binop "*" (Atomic (Var "z")) (Atomic (Var "p")))

@@ -48,6 +48,7 @@ tokens :-
   "\\"                       {tok (\p s -> Slash p)}
   "->"                       {tok (\p s -> RArrow p)}
   "."                        {tok (\p s -> Period p)}
+  ";"                        {tok (\p s -> Semicolon p)}
   
 {
 
