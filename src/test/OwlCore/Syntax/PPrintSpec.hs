@@ -10,7 +10,9 @@ import OwlCore.Syntax.PPrint
 import OwlCore.Syntax.ASTTests
 
 runMarkupExpr :: AST.Expr -> Markup String
-runMarkupExpr expr = snd $ execState (markupExpr expr) (0, Nil)
+runMarkupExpr expr =
+  case execState (markupExpr expr) (0, 0, Nil) of
+    (_,_,m) -> m
 
 pprintExpr :: AST.Expr -> String
 pprintExpr = printMarkup . runMarkupExpr

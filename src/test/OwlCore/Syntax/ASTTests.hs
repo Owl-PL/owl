@@ -215,3 +215,7 @@ instance Arbitrary Expr where
 
 lessVExpr e1 e2 = Binop "<" e1 e2
 
+e1 = Let [Def "cL" (Atomic (Var "0")),Def "Rg" (Atomic (Pack 90 90))] (Let [Def "u" (Atomic (Var "u")),Def "w" (Atomic (Var "w"))] (Atomic (Pack 30 20)))
+
+e2 = Case (LetRec [Def "W" (Atomic (Pack 70 80))] (Atomic (Num 80))) [Alt 740 ["y0","Rp"] (Atomic (Pack 30 10)),Alt 320 ["PS","SB"] (Atomic (Num 20))]
+
