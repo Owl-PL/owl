@@ -22,17 +22,17 @@ import qualified OwlCore.Syntax.AST as AST
       num    { Lexer.Num _ $$ }
       var    { Lexer.Var _ $$ }
       altid  { Lexer.AltId _ $$ }
-      '='    { Lexer.Sym _ "="  }
-      ';'    { Lexer.Sym _ ";"  }
-      '{'    { Lexer.Sym _ "{"  }
-      '}'    { Lexer.Sym _ "{"  }
-      '('    { Lexer.Sym _ "("  }
-      ')'    { Lexer.Sym _ "}"  }
-      ','    { Lexer.Sym _ ","  }
-      '.'    { Lexer.Sym _ "."  }
-      '\\'   { Lexer.Sym _ "\\" }
-      '->'   { Lexer.Sym _ "->" }
       binop  { Lexer.Binop _ $$ }
+      '='    { Lexer.Equal _ }
+      ';'    { Lexer.Semicolon _ }
+      '{'    { Lexer.LBrace _ }
+      '}'    { Lexer.RBrace _ }
+      '('    { Lexer.LParen _ }
+      ')'    { Lexer.RParen _ }
+      ','    { Lexer.Comma _ }
+      '.'    { Lexer.Period _ }
+      '\\'   { Lexer.Slash _ }
+      '->'   { Lexer.RArrow _ }      
 
 %%
 
@@ -78,6 +78,14 @@ AExpr : var                      { AST.Var $1     }
 parseError :: [Lexer.Token] -> a
 parseError tks = error $ "Parse Error: "++(show tks)
 
+parseCoreExpr :: String -> AST.Expr
+parseCoreExpr e =
+  case parseCore sc of
+    [ AST.SC _ _ e' ] -> e'
+ where
+    sc = "main = " ++ e
+  
+  
 parseCore :: String -> [AST.SC]
 parseCore s = parse (Lexer.alexScanTokens $ s)
 

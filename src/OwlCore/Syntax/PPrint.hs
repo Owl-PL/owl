@@ -231,6 +231,14 @@ markup (sc : prog) =
      string ";"
      newline
      markupSC sc          
+
+runMarkupExpr :: AST.Expr -> Markup String
+runMarkupExpr expr =
+  case execState (markupExpr expr) (0, 0, Nil) of
+    (_,_,m) -> m
+
+pprintExpr :: AST.Expr -> String
+pprintExpr = printMarkup . runMarkupExpr
      
 runMarkup :: AST.Prog -> Markup String
 runMarkup prog =

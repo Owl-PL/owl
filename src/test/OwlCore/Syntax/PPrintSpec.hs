@@ -5,22 +5,15 @@ import Test.Hspec
 import Test.QuickCheck
 
 import OwlCore.Syntax.AST as AST
+import OwlCore.Syntax.Parser as Parser
 import OwlCore.Syntax.PPrint
 
 import OwlCore.Syntax.ASTTests
 
-runMarkupExpr :: AST.Expr -> Markup String
-runMarkupExpr expr =
-  case execState (markupExpr expr) (0, 0, Nil) of
-    (_,_,m) -> m
-
-pprintExpr :: AST.Expr -> String
-pprintExpr = printMarkup . runMarkupExpr
-
-prop e1 e2 = pprintExpr (lessVExpr e1 e2) `shouldBe` ((pprintExpr e1) ++ " < " ++ (pprintExpr e2))
+prop e = (Parser.parseCoreExpr (pprintExpr e)) `shouldBe` e
 
 spec :: Spec
 spec = do
-  describe "pprint" $ do
-    it "a valid less-than expression" $ property prop
+  describe "pprintExpr:" $ do
+    it "Pretty printing and then parsing should be the identity" $ property prop
       

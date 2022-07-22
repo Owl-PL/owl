@@ -71,9 +71,38 @@ instance Arbitrary NameChar where
               NameChar '7',
               NameChar '8',
               NameChar '9',
-              NameChar '_']            
+              NameChar '_']
 
 newtype Name = Name [NameChar]
+
+genLAlpha :: Gen NameChar
+genLAlpha = elements [NameChar 'a',
+              NameChar 'b',
+              NameChar 'c',
+              NameChar 'd',
+              NameChar 'e',
+              NameChar 'f',
+              NameChar 'g',
+              NameChar 'h',
+              NameChar 'i',
+              NameChar 'j',
+              NameChar 'k',
+              NameChar 'l',
+              NameChar 'm',
+              NameChar 'n',
+              NameChar 'o',
+              NameChar 'p',
+              NameChar 'q',
+              NameChar 'r',
+              NameChar 's',
+              NameChar 't',
+              NameChar 'u',
+              NameChar 'v',
+              NameChar 'w',
+              NameChar 'x',
+              NameChar 'y',
+              NameChar 'z']
+    
 
 nameToString :: Name -> String
 nameToString (Name ncs) = map toChar ncs
@@ -85,8 +114,10 @@ instance Show Name where
   show = nameToString
 
 genName' :: Int -> Gen Name
-genName' n = do vs <- vector $ if n > 0 then n else 1
-                return $ Name vs
+genName' n =
+   do x <- genLAlpha
+      vs <- vector $ n - 1
+      return $ Name $ x : vs
 
 instance Arbitrary Name where
   arbitrary = sized genName'

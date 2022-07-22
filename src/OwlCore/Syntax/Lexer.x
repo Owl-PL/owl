@@ -13,7 +13,6 @@ import Data.Word
 $digit   = 0-9
 $lalpha  = a-z
 $ualpha  = A-Z
-$defsym  = [\= \; \{ \} \( \) \, \.]
 $varch   = [a-z A-Z 0-9 \_]
 $arithop = [\+\-\*\/]
 $boolop  = [\&\|]
@@ -39,9 +38,17 @@ tokens :-
   "!="                       {tok (\p s -> Binop p "!=")}
   "=="                       {tok (\p s -> Binop p "==")}
   [$arithop $boolop]         {tok (\p s -> Binop p s)}
-  $defsym                    {tok (\p s -> Sym p (head (words s)))}
   @var                       {tok (\p s -> Var p s)}
-
+  "="                        {tok (\p s -> Equal p) }
+  "{"                        {tok (\p s -> LBrace p)}
+  "}"                        {tok (\p s -> RBrace p)}
+  ")"                        {tok (\p s -> RParen p)}
+  "("                        {tok (\p s -> LParen p)}
+  ","                        {tok (\p s -> Comma p)}
+  "\\"                       {tok (\p s -> Slash p)}
+  "->"                       {tok (\p s -> RArrow p)}
+  "."                        {tok (\p s -> Period p)}
+  
 {
 
 -- Wraps `token` to make it easier to get the position and the input string.
@@ -60,7 +67,15 @@ data Token
   | Var        AlexPosn String
   | AltId      AlexPosn Int
   | Binop      AlexPosn String
-  | Sym        AlexPosn String
-  deriving (Eq,Show)
-
+  | Equal      AlexPosn
+  | Semicolon  AlexPosn
+  | LBrace     AlexPosn
+  | RBrace     AlexPosn
+  | LParen     AlexPosn
+  | RParen     AlexPosn
+  | Comma      AlexPosn
+  | Slash      AlexPosn
+  | RArrow     AlexPosn
+  | Period     AlexPosn
+  deriving Show
 }
