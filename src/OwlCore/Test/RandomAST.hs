@@ -1,4 +1,6 @@
-module OwlCore.Syntax.ASTTests where
+{- 
+-}
+module OwlCore.Test.RandomAST where
 
 import Control.Monad
 import Test.QuickCheck hiding (Fun)
@@ -305,4 +307,3 @@ diffExprStr e1 e2 = render $ prettyContextDiff (text "eIn") (text "eOut") text $
 diffExpr :: Expr -> Expr -> IO ()
 diffExpr e1 e2 = putStrLn $ diffExprStr (mkDiffableExpr e1) (mkDiffableExpr e2)
 
-eout = LetRec [Def "vUfzT6qIW" (Atomic (Paren (LetRec [Def "d" (Atomic (Var "z"))] (Atomic (Var "o"))))),Def "i4WSrgfn1" (Atomic (Paren (LetRec [Def "xM" (Atomic (Num 0)),Def "m0" (Atomic (Var "e"))] (LetRec [Def "i" (Atomic (Var "j"))] (Atomic (Var "q")))))),Def "guzLKMu4t" (Atomic (Paren (Fun ["qcvi","eEAz","fZB1","gWy5"] (Atomic (Paren (Binop ">" (Atomic (Num 10)) (Atomic (Var "j")))))))),Def "rQmGucmzQ" (Atomic (Paren (Fun ["kq0F","hh5K","jYsH","wvmU"] (Atomic (Paren (Let [Def "t" (Atomic (Pack 50 60))] (Atomic (Var "t")))))))),Def "n18Wl9lgs" (Atomic (Paren (Fun ["fnAi","n7WB","eZdf","gfSo"] (Atomic (Paren (Fun ["c1","e1"] (Atomic (Var "a")))))))),Def "v_ucDXzcD" (Atomic (Paren (Let [Def "i5" (Atomic (Var "w")),Def "k7" (Atomic (Var "o"))] (LetRec [Def "k" (Atomic (Pack 40 80))] (Atomic (Var "s")))))),Def "qEkcifqRU" (Atomic (Paren (Binop "==" (Atomic (Paren (Atomic (Var "g")))) (Atomic (Paren (Binop "==" (Atomic (Pack 0 70)) (Atomic (Pack 60 0)))))))),Def "r8nen0fJN" (Atomic (Paren (Let [Def "m3" (Atomic (Num 40)),Def "yO" (Atomic (Num 0))] (LetRec [Def "g" (Atomic (Var "u"))] (Atomic (Var "a")))))),Def "dgIa7Ipsu" (Atomic (Paren (Case (Atomic (Paren (Fun ["tN","qM"] (Atomic (Num 60))))) [Alt 110 ["in","m5"] (Atomic (Pack 20 60)),Alt 490 ["an","bf"] (Atomic (Var "y"))])))] (Fun ["mk2nvMDiA","r0GdWkinv","jteBu_oZc","d78s45B48","ejdwlFERo","pxXBMy3xj","om4pJ1hAx","rzLR6ZeaH","btrTTLroP"] (Atomic (Paren (Fun ["njpx","bAbA","pwnC","zcvy"] (Atomic (Paren (Binop "<=" (Atomic (Pack 30 40)) (Atomic (Num 0)))))))))
