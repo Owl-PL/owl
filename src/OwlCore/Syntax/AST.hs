@@ -28,4 +28,11 @@ data Def = Def String Expr
 data Alt = Alt Int [String] Expr
   deriving (Show,Eq)
 
-
+parenExpr :: Expr -> Expr
+parenExpr e@(App _ _)     = Atomic (Paren e)
+parenExpr e@(Binop _ _ _) = Atomic (Paren e)
+parenExpr e@(Let _ _)     = Atomic (Paren e)
+parenExpr e@(LetRec _ _)  = Atomic (Paren e)
+parenExpr e@(Case _ _)    = Atomic (Paren e)
+parenExpr e@(Fun _ _)     = Atomic (Paren e)
+parenExpr e                   = e

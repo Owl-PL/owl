@@ -120,48 +120,57 @@ markupDef :: AST.Def -> MarkupState String ()
 markupDef (AST.Def name body) =
   do string name
      string " = "     
-     markupExpr body
+     markupExpr $ AST.parenExpr body
 
 markupDefs :: [AST.Def] -> MarkupState String ()
 markupDefs [] = return ()
 markupDefs [def] = markupDef def
 markupDefs (def : defs) =
-  do markupDef def
+  do markupDefs defs     
      string ";"
      newline
-     markupDefs defs
+     markupDef def
+     
 
 markupAlt :: AST.Alt -> MarkupState String ()
 markupAlt (AST.Alt altid vars body)  =
   do string "<"
      string . show $ altid
      string "> "
-     (string . unwords $ vars)
+     markupPVar vars
      string " -> "
-     markupExpr body
+     markupExpr $ AST.parenExpr body
 
 markupAlts :: [AST.Alt] -> MarkupState String ()
 markupAlts []    = return ()
 markupAlts [alt] = markupAlt alt
 markupAlts (alt : alts) =
-  do markupAlt alt
+  do markupAlts alts
      string ";"
-     newline
-     markupAlts alts
+     newline     
+     markupAlt alt
+
+getColumn :: MarkupState String Column
+getColumn = do (c, _, _) <- get
+               return c
+
+setColumn :: Column -> MarkupState String ()
+setColumn c = do (_, indent, m) <- get
+                 put (c, indent, m)
 
 markupExpr :: AST.Expr -> MarkupState String ()
 
 markupExpr (AST.App e ae) =
-  do markupExpr e
+  do markupExpr $ AST.parenExpr e
      space
      markupAExpr ae
   
 markupExpr (AST.Binop op e1 e2) =
-  do markupExpr e1
+  do markupExpr $ AST.parenExpr e1
      space
      string op
      space
-     markupExpr e2
+     markupExpr $ AST.parenExpr e2
 
 -- Should never be hit if given a well-formed program.
 markupExpr (AST.Let [] e) = return ()
@@ -191,19 +200,31 @@ markupExpr (AST.LetRec [def] e) =
 
 markupExpr (AST.LetRec defs e) =
   do string "letrec "
+     col <- getColumn
      indent
      markupDefs defs
      newline
      string "in "
      markupExpr e
+     setColumn col
   
 markupExpr (AST.Case e alts) =
   do string "case "
+     col <- getColumn
      indent
-     markupExpr e     
+     markupExpr $ AST.parenExpr e
      string " of "
      newline
      markupAlts alts
+     setColumn col    
+
+markupExpr (AST.Fun binders e@(AST.Fun _ _)) =
+  do string "fun "
+     string "("
+     markupBinders binders
+     string ")"
+     string " -> "
+     markupExpr e
 
 markupExpr (AST.Fun binders e) =
   do string "fun "
@@ -211,7 +232,7 @@ markupExpr (AST.Fun binders e) =
      markupBinders binders
      string ")"
      string " -> "
-     markupExpr e
+     markupExpr $ AST.parenExpr e     
 
 markupExpr (AST.Atomic ae) = markupAExpr ae
 
@@ -222,7 +243,15 @@ markupBinders (b : bs) = do
   markupBinders bs  
   string ", "
   string b
-
+  
+markupPVar :: [String] -> MarkupState String ()
+markupPVar [] = string ""
+markupPVar [v] = string v
+markupPVar (v : vs) = do
+  markupPVar vs  
+  string " "
+  string v
+  
 markupSC :: AST.SC -> MarkupState String ()
 markupSC (AST.SC name args body) =
   do string name

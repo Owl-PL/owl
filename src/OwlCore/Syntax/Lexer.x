@@ -14,7 +14,7 @@ $digit   = 0-9
 $lalpha  = a-z
 $ualpha  = A-Z
 $varch   = [a-z A-Z 0-9 \_]
-$arithop = [\+\-\*\/]
+$arithop = [\+ \- \* \/]
 $boolop  = [\&\|]
 
 @var     = $lalpha $varch*
@@ -30,7 +30,7 @@ tokens :-
   of                         {tok (\p s -> Of p)}
   Pack                       {tok (\p s -> Pack p)}
   $digit+                    {tok (\p s -> Num p (read s))}  
-  "<"$digit+">"              {tok (\p s -> AltId p (read s))}
+  "<"$digit+">"              {tok (\p s -> AltId p (read . init . tail $ s))}
   ">"                        {tok (\p s -> Binop p ">")}
   ">="                       {tok (\p s -> Binop p ">=")}
   "<"                        {tok (\p s -> Binop p "<")}
@@ -45,7 +45,7 @@ tokens :-
   ")"                        {tok (\p s -> RParen p)}
   "("                        {tok (\p s -> LParen p)}
   ","                        {tok (\p s -> Comma p)}
-  "\\"                       {tok (\p s -> Slash p)}
+  \\                         {tok (\p s -> Slash p)}
   "->"                       {tok (\p s -> RArrow p)}
   "."                        {tok (\p s -> Period p)}
   ";"                        {tok (\p s -> Semicolon p)}

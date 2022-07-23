@@ -25,7 +25,9 @@ dependencies:
 - mtl       >= 2.2 && < 2.3
 - haskeline >= 0.8 && < 0.9
 - QuickCheck >= 2.14 && < 2.15
-
+- hspec-core >= 2.8  && < 2.9
+- Diff       >= 0.4  && < 0.5
+- pretty     >= 1.1  && < 1.2
 library:
   source-dirs: src
 
@@ -50,6 +52,7 @@ tests:
     - -with-rtsopts=-N
     dependencies:
     - hspec
+    - Diff
     - hspec-discover
     - QuickCheck
     - owl
