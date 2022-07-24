@@ -1,16 +1,15 @@
-{- 
+{- |A framework for generating random OwlCore abstract syntax.
 -}
 module OwlCore.Test.RandomAST where
 
 import Control.Monad
 import Test.QuickCheck hiding (Fun)
-import Data.Algorithm.Diff
-import Data.Algorithm.DiffOutput
-import Data.Algorithm.DiffContext
-import Text.PrettyPrint hiding (Str)
 
 import OwlCore.Syntax.AST
 
+-- * Variable Names #Names#
+
+-- |The type of characters in variable names.
 newtype NameChar = NameChar Char
 
 instance Arbitrary NameChar where
@@ -79,8 +78,11 @@ instance Arbitrary NameChar where
               NameChar '9',
               NameChar '_']
 
+-- |A `Name` is a list of `NameChar`'s.
 newtype Name = Name [NameChar]
 
+-- |Generates a random lowercase `NameChar`.
+--  This is used for choosing the first symbol in a variable name.
 genLAlpha :: Gen NameChar
 genLAlpha = elements [NameChar 'a',
               NameChar 'b',
@@ -110,6 +112,7 @@ genLAlpha = elements [NameChar 'a',
               NameChar 'z']
     
 
+-- |Converts a `Name` to a `String`.
 nameToString :: Name -> String
 nameToString (Name ncs) = map toChar ncs
  where
@@ -119,12 +122,9 @@ nameToString (Name ncs) = map toChar ncs
 instance Show Name where
   show = nameToString
 
-genName' :: Int -> Gen Name
-genName' n =
-   do x <- genLAlpha
-      vs <- vector $ n - 1
-      return $ Name $ x : vs
-
+-- |Generates a random variable name (`Name`) as a `String` (using `nameToString`).
+--  The name returned starts with a lowercase letter (using `genLAlpha`) and is
+--  not a keyword of the language.
 genName :: Gen String
 genName = do
   n <- sized genName'
@@ -132,7 +132,14 @@ genName = do
   if name `elem` ["in", "of", "let", "fun", "letrec", "case"]
   then genName
   else return name
+  where
+   genName' :: Int -> Gen Name
+   genName' n =
+     do x <- genLAlpha
+        vs <- vector $ n - 1
+        return $ Name $ x : vs
 
+-- |Generates a list of variable names using `genName` as a list of `String`'s.
 genNames :: Gen [String]
 genNames = do
   ns <- genNames'
@@ -141,35 +148,40 @@ genNames = do
    genNames' :: Gen [String]
    genNames' = sized $ \n -> listOf1 genName
 
+-- * Natural Numbers #Nats#
+
+-- |The type of a single digit that makes up a natural number.
 newtype Digit = Digit Int
 
 instance Arbitrary Digit where
   arbitrary = do
     n <- elements [0,1,2,3,4,5,6,7,8,9]
     return $ Digit n
-       
+
+-- |The type of natural numbers as a list of `Digit`'s.      
 newtype Nat = Nat [Digit]
 
-genNat' = sized $ \n ->
-  do ns <- vector $ if n > 0 then n else 1
-     return (Nat (take 10 ns))
-
-instance Arbitrary Nat where
-  arbitrary = genNat'  
-
+-- |Converts a `Nat` to an `Int`.
 natToInt :: Nat -> Int
 natToInt (Nat ns) = natToInt' (length ns) 0 ns
   where
     natToInt' :: Int -> Int -> [Digit] -> Int
     natToInt' c i [] = i
     natToInt' c i ((Digit d) : ds) = natToInt' (c-1) (10^c * d + i) ds 
-
+-- |Generates a random natural number as an `Int` using `natToInt`.
 genNat :: Gen Int
 genNat = do
   n <- genNat'
   return . natToInt $ n
+  where
+    genNat' = sized $ \n ->
+      do ns <- vector $ if n > 0 then n else 1
+         return (Nat (take 10 ns))
 
 
+-- * Expressions #Expr#
+
+-- |Chooses a random valid binary operator. 
 genBinop :: Gen String
 genBinop = oneof [return ">",
                   return "<" ,
@@ -184,126 +196,90 @@ genBinop = oneof [return ">",
                   return "==",
                   return "!="]
 
+-- |Generates a random atomic expression.
 aExprGen :: Gen AExpr
 aExprGen = sized aExprGen'
+  where
+    aExprGen' :: Int -> Gen AExpr
+    aExprGen' n | n > 1 = liftM Paren exprGen
+      where
+        expr  = resize (n `div` 2) exprGen
+        
+    aExprGen' _ = oneof [liftM Var genName,
+                         liftM Num genNat,
+                         liftM2 Pack genNat genNat]      
 
-aExprGen' :: Int -> Gen AExpr
-aExprGen' n | n > 1 = liftM Paren (exprGen' (n `div` 2))
-aExprGen' _ = oneof [liftM Var genName,
-                     liftM Num genNat,
-                     liftM2 Pack genNat genNat]
 
+-- |Generates an expression where if it is not atomic will
+--  be wrapped in parentheses.
 parenExprGen :: Gen Expr
 parenExprGen = do
   e <- exprGen
   return $ parenExpr e
 
+-- |Generates a random minimally-fully parenthesized expression.
 exprGen :: Gen Expr
 exprGen = sized exprGen'
-
-exprGen' :: Int -> Gen Expr
-exprGen' n | n > 1 = oneof [liftM (Atomic . Paren) expr,
-                            liftM2 App pexpr aexpr,
-                            liftM3 Binop genBinop pexpr pexpr,
-                            liftM2 Let defs expr,
-                            liftM2 LetRec defs expr,
-                            liftM2 Case pexpr alts,
-                            liftM2 Fun genNames pexpr]
   where
-    pexpr  = resize (n `div` 2) parenExprGen
-    expr  = resize (n `div` 2) exprGen
-    aexpr = resize (n `div` 2) aExprGen
-    defs  = resize (n `div` 2) defsGen
-    alts  = resize (n `div` 2) altsGen
-                                
-exprGen' _ = oneof [liftM (Atomic . Var) genName,
-                    liftM (Atomic . Num) genNat,
-                    liftM2 (\n m -> Atomic (Pack n m)) genNat genNat]
-             
+    exprGen' :: Int -> Gen Expr
+    exprGen' n | n > 1 = oneof [liftM (Atomic . Paren) expr,
+                                liftM2 App pexpr aexpr,
+                                liftM3 Binop genBinop pexpr pexpr,
+                                liftM2 Let defs expr,
+                                liftM2 LetRec defs expr,
+                                liftM2 Case pexpr alts,
+                                liftM2 Fun genNames pexpr]
+      where
+        pexpr = resize (n `div` 2) parenExprGen
+        expr  = resize (n `div` 2) exprGen
+        aexpr = resize (n `div` 2) aExprGen
+        defs  = resize (n `div` 2) defsGen
+        alts  = resize (n `div` 2) altsGen
+                 
+    exprGen' _ = oneof [liftM (Atomic . Var) genName,
+                        liftM (Atomic . Num) genNat,
+                        liftM2 (\n m -> Atomic (Pack n m)) genNat genNat]
+
+-- |Generates a random definition.                 
 defGen :: Gen Def
 defGen = sized defGen'
-
-defGen' :: Int -> Gen Def
-defGen' n = liftM2 Def genName expr
-  where
-    expr = resize (n `div` 2) parenExprGen
+ where
+   defGen' :: Int -> Gen Def
+   defGen' n = liftM2 Def genName expr
+     where
+       expr = resize (n `div` 2) parenExprGen
 
 instance Arbitrary Def where
   arbitrary = defGen
-  
+
+-- |Generates a list of definitions.  
 defsGen :: Gen [Def]
 defsGen = sized defsGen'
+  where
+    defsGen' :: Int -> Gen [Def]
+    defsGen' n = vector $ if n > 0 then n else 1
 
-defsGen' :: Int -> Gen [Def]
-defsGen' n = vector $ if n > 0 then n else 1
-
+-- |Generates a random alternative.
 altGen :: Gen Alt
 altGen = sized altGen'
-
-altGen' :: Int -> Gen Alt
-altGen' n = liftM3 Alt genNat genNames expr
   where
-    expr = resize (n `div` 2) parenExprGen
+    altGen' :: Int -> Gen Alt
+    altGen' n = liftM3 Alt genNat genNames expr
+      where
+        expr = resize (n `div` 2) parenExprGen
 
 instance Arbitrary Alt where
   arbitrary = altGen
 
+-- |Generates a random list of alternatives using `altGen`.
 altsGen :: Gen [Alt]
 altsGen = sized altsGen'
-
-altsGen' :: Int -> Gen [Alt]
-altsGen' n = vector $ if n > 0 then n else 1           
+  where
+    altsGen' :: Int -> Gen [Alt]
+    altsGen' n = vector $ if n > 0 then n else 1           
 
 instance Arbitrary Expr where
   arbitrary = exprGen
 
--- AST Diff library.
 
-data Diffable
-  = Str String
-  | Append Diffable Diffable
-
-diffableAExpr :: AExpr -> Diffable
-diffableAExpr (Paren e) = (Str "Paren (") `Append` ((diffableAST e) `Append` (Str ")\n"))
-diffableAExpr ae = Str (show ae)
-
-diffableDef :: Def -> Diffable
-diffableDef (Def s e) = (Str "Def ") `Append` ((Str s) `Append` ((Str " (") `Append` ((diffableAST e) `Append` (Str "),\n"))))
-
-diffableAlt :: Alt -> Diffable
-diffableAlt (Alt i vs e) = (Str "Alt ") `Append` ((Str (show i)) `Append` ((Str " ") `Append` ((Str (show vs)) `Append` ((Str " (") `Append` ((diffableAST e) `Append` (Str "),\n"))))))
-
-diffableAST :: Expr -> Diffable
-
-diffableAST e@(App e1 e2)
-  = (Str "App ((") `Append` ((diffableAST e1) `Append` ((Str ")\n(") `Append` ((diffableAExpr e2) `Append` (Str ")\n"))))
-  
-diffableAST e@(Binop op e1 e2)
-  = (Str "Binop (") `Append` ((Str op)  `Append` ((Str " (") `Append` ((diffableAST e1) `Append` ((Str ")\n (") `Append` ((diffableAST e2) `Append` (Str ")\n"))))))
-
-diffableAST e@(Let defs body)
-  = (Str "Let [") `Append` ((foldl (\r d -> diffableDef(d) `Append` ((Str "\n") `Append` r)) (Str "") defs) `Append` ((Str "] (") `Append` ((diffableAST body) `Append` (Str ")\n"))))
-  
-diffableAST e@(LetRec defs body) 
-  = (Str "LetRec [") `Append` ((foldl (\r d -> diffableDef(d) `Append` ((Str "\n") `Append` r)) (Str "") defs) `Append` ((Str "] (") `Append` ((diffableAST body) `Append` (Str ")\n"))))
-
-diffableAST e@(Case e' alts)
-  = (Str "Case (") `Append` ((diffableAST e') `Append` ((foldl (\r a -> diffableAlt(a) `Append` ((Str "\n") `Append` r)) (Str "") alts) `Append` (Str "\n")))
-
-diffableAST e@(Fun binders body) = (Str "Fun ") `Append` ((Str . show $ binders) `Append` ((Str " (") `Append` ((diffableAST body) `Append` (Str ")\n"))))
-diffableAST e@(Atomic ae) = (Str "Atomic (") `Append` ((diffableAExpr ae) `Append` (Str "\n"))
-
-flattenDiff :: [Diffable] -> String
-flattenDiff [] = ""
-flattenDiff ((Str s) : ds) = s ++ flattenDiff ds
-flattenDiff ((Append d1 d2) : ds) = flattenDiff (d1 : d2 : ds)
-
-mkDiffableExpr :: Expr -> String
-mkDiffableExpr e = flattenDiff [diffableAST e]
-
-diffExprStr :: String -> String -> String
-diffExprStr e1 e2 = render $ prettyContextDiff (text "eIn") (text "eOut") text $ getContextDiff 2 (lines e1) (lines e2)
-
-diffExpr :: Expr -> Expr -> IO ()
-diffExpr e1 e2 = putStrLn $ diffExprStr (mkDiffableExpr e1) (mkDiffableExpr e2)
 
