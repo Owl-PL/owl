@@ -87,6 +87,6 @@ parseCoreExpr e =
   
   
 parseCore :: String -> [AST.SC]
-parseCore s = parse (Lexer.alexScanTokens $ s)
+parseCore = parse  . Lexer.lexer
 
 }

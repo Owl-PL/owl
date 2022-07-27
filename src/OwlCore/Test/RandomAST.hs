@@ -5,7 +5,7 @@ module OwlCore.Test.RandomAST where
 import Control.Monad
 import Test.QuickCheck hiding (Fun)
 
-import OwlCore.Syntax.AST
+import OwlCore.Syntax.AST hiding (Name)
 
 -- * Variable Names #Names#
 

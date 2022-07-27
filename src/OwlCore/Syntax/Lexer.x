@@ -1,6 +1,6 @@
 {
--- The Alex lexer.
-module OwlCore.Syntax.Lexer (Token(..), alexScanTokens) where
+-- | Lexical analysis.
+module OwlCore.Syntax.Lexer (Token(..), lexer) where
 
 import Control.Monad.State
 import Control.Monad.Except
@@ -55,7 +55,9 @@ tokens :-
 -- Wraps `token` to make it easier to get the position and the input string.
 tok f p s = f p s
 
--- The tokens:
+-- | The lexical tokens of OwlCore.  They are all pretty self explanetory.  Each
+--   constructor holds onto a `AlexPosn` which is the position of the token in the
+--   input stream. We will use this for error reporting.
 data Token
   = Fun        AlexPosn
   | Let        AlexPosn
@@ -79,4 +81,9 @@ data Token
   | RArrow     AlexPosn
   | Period     AlexPosn
   deriving Show
+
+-- | The lexer: translates a string into tokens.
+lexer :: String -> [Token]
+lexer = alexScanTokens
+
 }
