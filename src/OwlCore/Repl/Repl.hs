@@ -1,4 +1,4 @@
-module OwlCore.Repl.Repl where
+module OwlCore.Repl.Repl (runRepl) where
 
 import Globals
 import qualified OwlCore.Syntax.AST as AST
@@ -8,25 +8,31 @@ import qualified OwlCore.Syntax.Parser as Parser
 import System.Console.Haskeline
 import Control.Monad.State.Lazy
 
--- A record containing the Repl configuration.
+-- | The Repl's configuration record.
 data Config = Config {
+  -- | The prompt, whose default is `defaultPrompt`.
   promptStr :: String,
-  inputFilePath :: String
+  -- | The input file to load into the Repl state.
+  inputFilePath :: String 
 }
 
+-- | The default prompt.
 defaultPrompt :: String
 defaultPrompt = "owlCore> "
 
+-- | The default input file path; the empty string.
 defaultInputFilePath :: String
 defaultInputFilePath = ""
 
+-- | The initial configuration.
 initConfig :: Config
 initConfig = Config defaultPrompt defaultInputFilePath
 
--- State monad that contains an instance of the configuration options.
+-- | The state monad for the repl housing the configuration and access
+--   to IO.
 type ReplState a = StateT Config IO a
 
--- ReplState helpers to make it easier to set options.
+-- | Sets the file path in the `ReplState`. 
 setFilePath :: String -> ReplState ()
 setFilePath s = do
   opts <- get
@@ -36,17 +42,16 @@ setFilePath s = do
        -- one.
        Config p _ -> put $ Config p s
 
+-- | Gets the prompt from the `ReplState`.
 getPromptStr :: ReplState String
 getPromptStr = get >>= (return . promptStr)
 
--- The repl banner:
-owlUnicode :: String
-owlUnicode = "🦉"
-
+-- | The Repl banner with the version number from the global `version`
+--   variable.
 banner :: String
 banner = owlUnicode ++ " Welcome to OwlCore " ++ version ++ " " ++ owlUnicode
 
--- Repl main loop in the configuration state monad + IO.
+-- | The Repl main loop in `ReplState`.
 repl :: ReplState ()
 repl = do
   config <- get
@@ -68,7 +73,7 @@ repl = do
                  outputStrLn . (PPrint.pprint) $ Parser.parseCore input
                  innerLoop config
 
--- The main function of the repl. `Main.main` simply calls this
--- function.
+-- | The main function of the repl. `Main.main` simply calls this
+--   function.
 runRepl :: IO ()
 runRepl = evalStateT repl initConfig
