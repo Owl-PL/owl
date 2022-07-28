@@ -201,9 +201,9 @@ aExprGen :: Gen AExpr
 aExprGen = sized aExprGen'
   where
     aExprGen' :: Int -> Gen AExpr
-    aExprGen' n | n > 1 = liftM Paren exprGen
+    aExprGen' n | n > 1 = liftM Paren expr
       where
-        expr  = resize (n `div` 2) exprGen
+        expr  = resize (n `div` 2) naExprGen
         
     aExprGen' _ = oneof [liftM Var genName,
                          liftM Num genNat,
@@ -222,8 +222,7 @@ naExprGen :: Gen Expr
 naExprGen = sized naExprGen'
   where
     naExprGen' :: Int -> Gen Expr
-    naExprGen' n = oneof [liftM (Atomic . Paren) naExpr,
-                          liftM2 App pexpr aexpr,
+    naExprGen' n = oneof [liftM2 App pexpr aexpr,
                           liftM3 Binop genBinop pexpr pexpr,
                           liftM2 Let defs expr,
                           liftM2 LetRec defs expr,

@@ -65,6 +65,7 @@ Expr : Expr AExpr                  { AST.App $1 $2      }
      | let defs in Expr            { AST.Let $2 $4      }
      | letrec defs in Expr         { AST.LetRec $2 $4   }
      | case Expr of alts           { AST.Case $2 $4     }
+     | fun var '->' Expr           { AST.Fun [$2] $4    }
      | fun '(' cvars ')' '->' Expr { AST.Fun $3 $6      }
      | AExpr                       { AST.Atomic $1      }
 
