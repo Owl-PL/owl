@@ -1,6 +1,6 @@
 {
-
-module OwlCore.Syntax.Parser where
+-- | The Happy parser.
+module OwlCore.Syntax.Parser (parseCoreExpr, parseCore) where
 
 import qualified OwlCore.Syntax.Lexer as Lexer
 import qualified OwlCore.Syntax.AST as AST  
@@ -75,9 +75,11 @@ AExpr : var                      { AST.Var $1     }
 
 {
 
+-- | Issues a parse error using the lexer stream.
 parseError :: [Lexer.Token] -> a
 parseError tks = error $ "Parse Error: "++(show tks)
 
+-- | Parses an expression.    
 parseCoreExpr :: String -> AST.Expr
 parseCoreExpr e =
   case parseCore sc of
@@ -85,8 +87,9 @@ parseCoreExpr e =
  where
     sc = "main = " ++ e
   
-  
-parseCore :: String -> [AST.SC]
+-- | Parses a program.
+--   This is simply the composition of `Lexer.Lexer` and the Happy parser.
+parseCore :: String -> AST.Prog
 parseCore = parse  . Lexer.lexer
 
 }
