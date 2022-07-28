@@ -281,5 +281,6 @@ altsGen = sized altsGen'
 instance Arbitrary Expr where
   arbitrary = exprGen
 
-
-
+-- | Generates random expression of size `n`.
+genExpr :: Int -> IO Expr
+genExpr n = generate $ (resize n exprGen)

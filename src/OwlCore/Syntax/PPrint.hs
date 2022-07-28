@@ -134,13 +134,33 @@ space = string " "
 getColumn :: MarkupState String Column
 getColumn = do (c, _, _) <- get
                return c
-
+               
 -- | Sets the current column to `c`, but doesn't modify the indention
 --   level or the accumulator.
 setColumn :: Column -> MarkupState String ()
 setColumn c = do (_, indent, m) <- get
                  put (c, indent, m)
 
+-- | Returns the current indention level.
+getIndent :: MarkupState String Column
+getIndent = do (_, i, _) <- get
+               return i
+
+-- | Sets the current indention level to `i`, but doesn't modify the
+-- current column or the accumulator.
+setIndent :: Column -> MarkupState String ()
+setIndent i = do (c, _, m) <- get
+                 put (c, i, m)
+
+-- | Adds parens around the markup.
+markupParenExpr :: AST.Expr -> MarkupState String ()
+markupParenExpr (AST.Atomic ae) = do
+  markupAExpr ae
+markupParenExpr e = do
+  string "("
+  markupExpr e
+  string ")"
+  
 -- * AST Markup and Pretty Printing
 
 -- | Marks up an atomic expression.
@@ -148,23 +168,31 @@ markupAExpr :: AST.AExpr -> MarkupState String ()
 markupAExpr (AST.Var x) = string x
 markupAExpr (AST.Num i) = string . show $ i
 markupAExpr (AST.Pack i1 i2) =
-  do string "Pack {"
+  do string "Pack{"
      (string . show $ i1)
      string ", "
      (string . show $ i2)
      string "}"
 
-markupAExpr (AST.Paren e) =
-  do string "("
-     markupExpr e
-     string ")"
+markupAExpr (AST.Paren (AST.Atomic e)) = markupAExpr e
+markupAExpr (AST.Paren e) = markupParenExpr e
 
 -- | Marks up a definition.
 markupDef :: AST.Def -> MarkupState String ()
+markupDef (AST.Def name body@(AST.Let _ _)) =
+  do string name
+     string " = "     
+     markupExpr . AST.parenExpr $ body     
+
+markupDef (AST.Def name body@(AST.LetRec _ _)) =
+  do string name
+     string " = "     
+     markupExpr . AST.parenExpr $ body     
+
 markupDef (AST.Def name body) =
   do string name
      string " = "     
-     markupExpr $ AST.parenExpr body
+     markupExpr body
 
 -- | Marks up a list of definitions.
 markupDefs :: [AST.Def] -> MarkupState String ()
@@ -178,13 +206,21 @@ markupDefs (def : defs) =
      
 -- | Marks up an alternative.
 markupAlt :: AST.Alt -> MarkupState String ()
+markupAlt (AST.Alt altid vars body@(AST.Case _ _))  =
+  do string "<"
+     string . show $ altid
+     string "> "
+     markupPVar vars
+     string " -> "
+     markupExpr . AST.parenExpr $ body
+
 markupAlt (AST.Alt altid vars body)  =
   do string "<"
      string . show $ altid
      string "> "
      markupPVar vars
      string " -> "
-     markupExpr $ AST.parenExpr body
+     markupExpr body     
 
 -- | Marks up a list of alternatives.
 markupAlts :: [AST.Alt] -> MarkupState String ()
@@ -200,16 +236,16 @@ markupAlts (alt : alts) =
 markupExpr :: AST.Expr -> MarkupState String ()
 
 markupExpr (AST.App e ae) =
-  do markupExpr $ AST.parenExpr e
+  do markupParenExpr e
      space
      markupAExpr ae
-  
+
 markupExpr (AST.Binop op e1 e2) =
-  do markupExpr $ AST.parenExpr e1
+  do markupParenExpr e1
      space
      string op
      space
-     markupExpr $ AST.parenExpr e2
+     markupParenExpr e2
 
 -- Should never be hit if given a well-formed program.
 markupExpr (AST.Let [] e) = return ()
@@ -222,11 +258,13 @@ markupExpr (AST.Let [def] e) =
 
 markupExpr (AST.Let defs e) =
   do string "let "
+     col <- getColumn
      indent
      markupDefs defs
      newline     
      string "in "
      markupExpr e
+     setColumn col
 
 -- Should never be hit if given a well-formed program.
 markupExpr (AST.LetRec [] e) = return ()
@@ -246,43 +284,57 @@ markupExpr (AST.LetRec defs e) =
      string "in "
      markupExpr e
      setColumn col
-  
+
+markupExpr (AST.Case e@(AST.Atomic _) [alt]) =
+  do string "case "
+     markupExpr e
+     string " of "  
+     markupAlt alt
+
+markupExpr (AST.Case e [alt]) =
+  do string "case "
+     markupParenExpr e
+     string " of "  
+     markupAlt alt
+     
 markupExpr (AST.Case e alts) =
   do string "case "
-     col <- getColumn
      indent
+     i <- getIndent
      markupExpr $ AST.parenExpr e
-     string " of "
-     newline
-     markupAlts alts
-     setColumn col    
+     setIndent i
+     string " of "     
+     newline     
+     markupAlts alts     
 
 markupExpr (AST.Fun binders e@(AST.Fun _ _)) =
   do string "fun "
-     string "("
      markupBinders binders
-     string ")"
      string " -> "
      markupExpr e
 
 markupExpr (AST.Fun binders e) =
   do string "fun "
-     string "("
      markupBinders binders
-     string ")"
      string " -> "
-     markupExpr $ AST.parenExpr e     
+     markupParenExpr e     
 
 markupExpr (AST.Atomic ae) = markupAExpr ae
 
 -- | Marks up a list of binder names.
 markupBinders :: [AST.Name] -> MarkupState String ()
-markupBinders [] = string ""
 markupBinders [b] = string b
-markupBinders (b : bs) = do
-  markupBinders bs  
-  string ", "
-  string b
+markupBinders binders = do
+  string "("
+  markupBinders' binders
+  string ")"
+  where
+    markupBinders' [] = string ""
+    markupBinders' [b] = string b
+    markupBinders' (b : bs) = do
+      markupBinders' bs  
+      string ", "
+      string b
 
 -- | Marks up a list of pattern variables.  
 markupPVar :: [AST.Name] -> MarkupState String ()

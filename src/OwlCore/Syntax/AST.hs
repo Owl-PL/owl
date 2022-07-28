@@ -64,4 +64,4 @@ parenExpr e@(Let _ _)     = Atomic (Paren e)
 parenExpr e@(LetRec _ _)  = Atomic (Paren e)
 parenExpr e@(Case _ _)    = Atomic (Paren e)
 parenExpr e@(Fun _ _)     = Atomic (Paren e)
-parenExpr e                   = e
+parenExpr e               = e
