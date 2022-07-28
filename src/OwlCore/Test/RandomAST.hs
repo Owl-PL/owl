@@ -210,19 +210,40 @@ aExprGen = sized aExprGen'
                          liftM2 Pack genNat genNat]      
 
 
--- |Generates an expression where if it is not atomic will
---  be wrapped in parentheses.
+-- | Generates an expression where if it is not atomic will
+--   be wrapped in parentheses.
 parenExprGen :: Gen Expr
 parenExprGen = do
   e <- exprGen
   return $ parenExpr e
+
+-- | Generates a non-atomic expression.
+naExprGen :: Gen Expr
+naExprGen = sized naExprGen'
+  where
+    naExprGen' :: Int -> Gen Expr
+    naExprGen' n = oneof [liftM (Atomic . Paren) naExpr,
+                          liftM2 App pexpr aexpr,
+                          liftM3 Binop genBinop pexpr pexpr,
+                          liftM2 Let defs expr,
+                          liftM2 LetRec defs expr,
+                          liftM2 Case pexpr alts,
+                          liftM2 Fun genNames pexpr]
+      where
+        pexpr  = resize (n `div` 2) parenExprGen
+        naExpr = resize (n `div` 2) naExprGen
+        expr   = resize (n `div` 2) exprGen
+        aexpr  = resize (n `div` 2) aExprGen
+        defs   = resize (n `div` 2) defsGen
+        alts   = resize (n `div` 2) altsGen
+
 
 -- |Generates a random minimally-fully parenthesized expression.
 exprGen :: Gen Expr
 exprGen = sized exprGen'
   where
     exprGen' :: Int -> Gen Expr
-    exprGen' n | n > 1 = oneof [liftM (Atomic . Paren) expr,
+    exprGen' n | n > 1 = oneof [liftM (Atomic . Paren) naExpr,
                                 liftM2 App pexpr aexpr,
                                 liftM3 Binop genBinop pexpr pexpr,
                                 liftM2 Let defs expr,
@@ -230,11 +251,12 @@ exprGen = sized exprGen'
                                 liftM2 Case pexpr alts,
                                 liftM2 Fun genNames pexpr]
       where
-        pexpr = resize (n `div` 2) parenExprGen
-        expr  = resize (n `div` 2) exprGen
-        aexpr = resize (n `div` 2) aExprGen
-        defs  = resize (n `div` 2) defsGen
-        alts  = resize (n `div` 2) altsGen
+        pexpr  = resize (n `div` 2) parenExprGen
+        naExpr = resize (n `div` 2) naExprGen
+        expr   = resize (n `div` 2) exprGen
+        aexpr  = resize (n `div` 2) aExprGen
+        defs   = resize (n `div` 2) defsGen
+        alts   = resize (n `div` 2) altsGen
                  
     exprGen' _ = oneof [liftM (Atomic . Var) genName,
                         liftM (Atomic . Num) genNat,
