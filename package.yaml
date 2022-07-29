@@ -48,17 +48,3 @@ executables:
     - QuickCheck
     - owl
 
-tests:
-  owl-test:
-    main:                Spec.hs
-    source-dirs:         src/test
-    ghc-options:
-    - -threaded
-    - -rtsopts
-    - -with-rtsopts=-N
-    dependencies:
-    - hspec
-    - Diff
-    - hspec-discover
-    - QuickCheck
-    - owl
