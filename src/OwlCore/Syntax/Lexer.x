@@ -31,13 +31,18 @@ tokens :-
   Pack                       {tok (\p s -> Pack p)}
   $digit+                    {tok (\p s -> Num p (read s))}  
   "<"$digit+">"              {tok (\p s -> AltId p (read . init . tail $ s))}
-  ">"                        {tok (\p s -> Binop p ">")}
-  ">="                       {tok (\p s -> Binop p ">=")}
-  "<"                        {tok (\p s -> Binop p "<")}
-  "<="                       {tok (\p s -> Binop p "<=")}
-  "!="                       {tok (\p s -> Binop p "!=")}
-  "=="                       {tok (\p s -> Binop p "==")}
-  [$arithop $boolop]         {tok (\p s -> Binop p s)}
+  ">"                        {tok (\p s -> Gr p)}
+  ">="                       {tok (\p s -> GrEq p)}
+  "<"                        {tok (\p s -> Less p)}
+  "<="                       {tok (\p s -> LEq p)}
+  "!="                       {tok (\p s -> Neq p)}
+  "=="                       {tok (\p s -> Eq p)}
+  "+"                        {tok (\p s -> Plus p)}
+  "-"                        {tok (\p s -> Minus p)}
+  "*"                        {tok (\p s -> Mult p)}
+  "/"                        {tok (\p s -> Div p)}
+  "&"                        {tok (\p s -> And p)}
+  "|"                        {tok (\p s -> Or p)}
   @var                       {tok (\p s -> Var p s)}
   "="                        {tok (\p s -> Equal p) }
   "{"                        {tok (\p s -> LBrace p)}
@@ -45,9 +50,7 @@ tokens :-
   ")"                        {tok (\p s -> RParen p)}
   "("                        {tok (\p s -> LParen p)}
   ","                        {tok (\p s -> Comma p)}
-  \\                         {tok (\p s -> Slash p)}
   "->"                       {tok (\p s -> RArrow p)}
-  "."                        {tok (\p s -> Period p)}
   ";"                        {tok (\p s -> Semicolon p)}
   
 {
@@ -69,17 +72,26 @@ data Token
   | Num        AlexPosn Int    
   | Var        AlexPosn String
   | AltId      AlexPosn Int
-  | Binop      AlexPosn String
   | Equal      AlexPosn
+  | Less       AlexPosn
+  | LEq        AlexPosn
+  | Gr         AlexPosn
+  | GrEq       AlexPosn
+  | Neq        AlexPosn
+  | Eq         AlexPosn
+  | Plus       AlexPosn
+  | Minus      AlexPosn
+  | Mult       AlexPosn
+  | Div        AlexPosn
+  | And        AlexPosn
+  | Or         AlexPosn
   | Semicolon  AlexPosn
   | LBrace     AlexPosn
   | RBrace     AlexPosn
   | LParen     AlexPosn
   | RParen     AlexPosn
   | Comma      AlexPosn
-  | Slash      AlexPosn
-  | RArrow     AlexPosn
-  | Period     AlexPosn
+  | RArrow     AlexPosn  
   deriving Show
 
 -- | The lexer: translates a string into tokens.

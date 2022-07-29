@@ -17,13 +17,43 @@ data SC = SC
 -- | Expressions.
 data Expr
   = App Expr AExpr          -- ^ Function application.
-  | Binop String Expr Expr  -- ^ Binary operations.
+  | Binop Op Expr Expr      -- ^ Binary operations.
   | Let [Def] Expr          -- ^ Let expressions.
   | LetRec [Def] Expr       -- ^ Recursive let expressions.
   | Case Expr [Alt]         -- ^ Case expressions.
   | Fun [String] Expr       -- ^ Functions.
   | Atomic AExpr            -- ^ Atomic expressions.
   deriving (Show,Eq)  
+
+-- | Support binary operators.
+data Op
+  = Less
+  | LEq 
+  | Gr  
+  | GrEq
+  | Neq 
+  | Eq  
+  | Plus
+  | Minus
+  | Mult 
+  | Div  
+  | And  
+  | Or   
+  deriving (Show,Eq)
+
+opToStr :: Op -> String
+opToStr Less  = "<"
+opToStr LEq   = "<="
+opToStr Gr    = ">"
+opToStr GrEq  = ">="
+opToStr Neq   = "!="
+opToStr Eq    = "=="
+opToStr Plus  = "+"
+opToStr Minus = "-"
+opToStr Mult  = "*"
+opToStr Div   = "/"
+opToStr And   = "&"
+opToStr Or    = "|"
 
 -- | The unique identifier of constructors.
 type Tag = Int

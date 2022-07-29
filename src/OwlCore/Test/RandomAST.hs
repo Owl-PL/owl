@@ -183,19 +183,19 @@ genNat = do
 -- * Expressions #Expr#
 
 -- | Chooses a random valid binary operator. 
-genBinop :: Gen String
-genBinop = oneof [return ">",
-                  return "<" ,
-                  return "<=",
-                  return ">=",
-                  return "+",
-                  return "-",
-                  return "/",
-                  return "*",
-                  return "&",
-                  return "|",
-                  return "==",
-                  return "!="]
+genBinop :: Gen Op
+genBinop = oneof [return Gr,
+                  return Less ,
+                  return LEq,
+                  return GrEq,
+                  return Plus,
+                  return Minus,
+                  return Div,
+                  return Mult,
+                  return And,
+                  return Or,
+                  return Eq,
+                  return Neq]
 
 -- | Generates a random atomic expression.
 aExprGen :: Gen AExpr

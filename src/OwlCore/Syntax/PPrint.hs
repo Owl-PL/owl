@@ -243,7 +243,7 @@ markupExpr (AST.App e ae) =
 markupExpr (AST.Binop op e1 e2) =
   do markupParenExpr e1
      space
-     string op
+     string (AST.opToStr op)
      space
      markupParenExpr e2
 

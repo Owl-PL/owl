@@ -8,6 +8,7 @@ import OwlCore.Syntax.AST
 import OwlCore.Syntax.Parser
 import OwlCore.Syntax.PPrint
 import OwlCore.Test.RandomAST
+import OwlCore.Test.DiffableAST
 
 -- | The property specifying that composing the pretty printer with
 --   the parser yeilds the identity function.
