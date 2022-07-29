@@ -9,7 +9,7 @@ import OwlCore.Syntax.AST hiding (Name)
 
 -- * Variable Names #Names#
 
--- |The type of characters in variable names.
+-- | The type of characters in variable names.
 newtype NameChar = NameChar Char
 
 instance Arbitrary NameChar where
@@ -78,10 +78,10 @@ instance Arbitrary NameChar where
               NameChar '9',
               NameChar '_']
 
--- |A `Name` is a list of `NameChar`'s.
+-- | A `Name` is a list of `NameChar`'s.
 newtype Name = Name [NameChar]
 
--- |Generates a random lowercase `NameChar`.
+-- | Generates a random lowercase `NameChar`.
 --  This is used for choosing the first symbol in a variable name.
 genLAlpha :: Gen NameChar
 genLAlpha = elements [NameChar 'a',
@@ -112,7 +112,7 @@ genLAlpha = elements [NameChar 'a',
               NameChar 'z']
     
 
--- |Converts a `Name` to a `String`.
+-- | Converts a `Name` to a `String`.
 nameToString :: Name -> String
 nameToString (Name ncs) = map toChar ncs
  where
@@ -122,7 +122,7 @@ nameToString (Name ncs) = map toChar ncs
 instance Show Name where
   show = nameToString
 
--- |Generates a random variable name (`Name`) as a `String` (using `nameToString`).
+-- | Generates a random variable name (`Name`) as a `String` (using `nameToString`).
 --  The name returned starts with a lowercase letter (using `genLAlpha`) and is
 --  not a keyword of the language.
 genName :: Gen String
@@ -139,7 +139,7 @@ genName = do
         vs <- vector $ n - 1
         return $ Name $ x : vs
 
--- |Generates a list of variable names using `genName` as a list of `String`'s.
+-- | Generates a list of variable names using `genName` as a list of `String`'s.
 genNames :: Gen [String]
 genNames = do
   ns <- genNames'
@@ -150,7 +150,7 @@ genNames = do
 
 -- * Natural Numbers #Nats#
 
--- |The type of a single digit that makes up a natural number.
+-- | The type of a single digit that makes up a natural number.
 newtype Digit = Digit Int
 
 instance Arbitrary Digit where
@@ -158,17 +158,18 @@ instance Arbitrary Digit where
     n <- elements [0,1,2,3,4,5,6,7,8,9]
     return $ Digit n
 
--- |The type of natural numbers as a list of `Digit`'s.      
+-- | The type of natural numbers as a list of `Digit`'s.      
 newtype Nat = Nat [Digit]
 
--- |Converts a `Nat` to an `Int`.
+-- | Converts a `Nat` to an `Int`.
 natToInt :: Nat -> Int
-natToInt (Nat ns) = natToInt' (length ns) 0 ns
+natToInt (Nat ns) = natToInt' ((length ns) - 1) 0 ns
   where
     natToInt' :: Int -> Int -> [Digit] -> Int
     natToInt' c i [] = i
-    natToInt' c i ((Digit d) : ds) = natToInt' (c-1) (10^c * d + i) ds 
--- |Generates a random natural number as an `Int` using `natToInt`.
+    natToInt' c i ((Digit d) : ds) = natToInt' (c-1) (i + 10^c * d) ds
+    
+-- | Generates a random natural number as an `Int` using `natToInt`.
 genNat :: Gen Int
 genNat = do
   n <- genNat'
@@ -181,7 +182,7 @@ genNat = do
 
 -- * Expressions #Expr#
 
--- |Chooses a random valid binary operator. 
+-- | Chooses a random valid binary operator. 
 genBinop :: Gen String
 genBinop = oneof [return ">",
                   return "<" ,
@@ -196,7 +197,7 @@ genBinop = oneof [return ">",
                   return "==",
                   return "!="]
 
--- |Generates a random atomic expression.
+-- | Generates a random atomic expression.
 aExprGen :: Gen AExpr
 aExprGen = sized aExprGen'
   where
@@ -217,7 +218,7 @@ parenExprGen = do
   e <- exprGen
   return $ parenExpr e
 
--- | Generates a non-atomic expression.
+-- |  Generates a non-atomic expression.
 naExprGen :: Gen Expr
 naExprGen = sized naExprGen'
   where
@@ -237,7 +238,7 @@ naExprGen = sized naExprGen'
         alts   = resize (n `div` 2) altsGen
 
 
--- |Generates a random minimally-fully parenthesized expression.
+-- | Generates a random minimally-fully parenthesized expression.
 exprGen :: Gen Expr
 exprGen = sized exprGen'
   where
@@ -261,7 +262,7 @@ exprGen = sized exprGen'
                         liftM (Atomic . Num) genNat,
                         liftM2 (\n m -> Atomic (Pack n m)) genNat genNat]
 
--- |Generates a random definition.                 
+-- | Generates a random definition.                 
 defGen :: Gen Def
 defGen = sized defGen'
  where
@@ -273,14 +274,14 @@ defGen = sized defGen'
 instance Arbitrary Def where
   arbitrary = defGen
 
--- |Generates a list of definitions.  
+-- | Generates a list of definitions.  
 defsGen :: Gen [Def]
 defsGen = sized defsGen'
   where
     defsGen' :: Int -> Gen [Def]
     defsGen' n = vector $ if n > 0 then n else 1
 
--- |Generates a random alternative.
+-- | Generates a random alternative.
 altGen :: Gen Alt
 altGen = sized altGen'
   where
@@ -292,7 +293,7 @@ altGen = sized altGen'
 instance Arbitrary Alt where
   arbitrary = altGen
 
--- |Generates a random list of alternatives using `altGen`.
+-- | Generates a random list of alternatives using `altGen`.
 altsGen :: Gen [Alt]
 altsGen = sized altsGen'
   where
