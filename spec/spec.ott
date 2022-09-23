@@ -10,14 +10,14 @@ K :: 'kinds_' ::= {{com Kinds}}
   | Type     :: :: Type
   | K1 -> K2 :: :: TArrow
 
-A, B, T :: 'types_' ::= {{com Types}}
+A, B, C, D, T :: 'types_' ::= {{com Types}}
   | x                                  :: :: Var
-  | x : K { T }                        :: :: TFun
-  | T1 T2                              :: :: TApp
+  | function x : K { T }                        :: :: TFun
+  | A B                               :: :: TApp
   | Top K                              :: :: Top
-  | T1 -> T2                           :: :: Arrow
-  | Forall ( x : K ) . T               :: :: Forall
-  | Some ( x : K ) . T                 :: :: Some
+  | A -> B                           :: :: Arrow
+  | Forall ( x <= A ) . B              :: :: Forall
+  | Some ( x <= A ) . B                :: :: Some
   | Record { x1 : T1 , ... , xi : Ti } :: :: TRecord  
 
 t :: 'terms_' ::= {{com Terms }}
@@ -31,7 +31,7 @@ t :: 'terms_' ::= {{com Terms }}
   | record { x1 = t1 , ... , xi = ti } :: :: Record
   | t . x                              :: :: FieldSelection
 
-G :: 'contexts_' ::= {{com Contexts }}
+G {{tex \Gamma }} :: 'contexts_' ::= {{com Contexts }}
   | empty       ::   :: Empty
   | G , x : T   ::   :: VarExt
   | G , x <= T  ::   :: TVarExt
@@ -44,6 +44,10 @@ terminals :: 'terminal_' ::=
   {{tex \mathsf{Class} }}
   | ->        :: :: RArrow
   {{tex \to }}
+  | <=        :: :: Leq
+  {{tex \leq }}
+  | empty     :: :: Empty
+  {{tex \emptyset }}
   | Type      :: :: Type
   {{tex \mathsf{Type} }}
   | Top       :: :: Top
@@ -71,4 +75,117 @@ formula :: 'formula_' ::=
     {{tex [[formula]] }}
 
 defns
-  Judgments :: ''   ::=
+  Judgments :: '' ::=
+
+defn 
+  G |- :: :: validctx :: 'C_'
+  {{com Valid Contexts }}
+by  
+
+  --------- :: Empty
+  empty |- 
+
+  G |- T : K
+  ------------ :: TVar
+  G, x <= T |-
+
+  G |- T : Type
+  ------------- :: TVar
+  G, x : T |-
+
+defn 
+  G |- T : K :: :: kinding :: 'K_'
+  {{com Kind Checking }}
+by  
+
+  G |- T : K
+  ------------------ :: TVar
+  G, x <= T |- x : K
+
+  G, x <= Top K1 |- T2 : K2
+  -------------------------------------------- :: FunI
+  G |- function x : K1 -> K2 { T2 } : K1 -> K2
+  
+  G |- A : K1 -> K2  &&  G |- B : K1
+  ---------------------------------- :: FunE
+  G |- A B : K2
+
+  G |- 
+  -------------- :: Top
+  G |- Top K : K
+
+  G |- A : Type && G |- B : Type
+  ------------------------------ :: Arrow
+  G |- A -> B : Type
+
+  G, x <= A |- B : Type
+  ------------------------------- :: Forall
+  G |- Forall (x <= A) . B : Type
+
+  G, x <= A |- B : Type
+  ----------------------------- :: Some
+  G |- Some (x <= A) . B : Type
+
+  G |-  
+  G |- T1 : Type , ... , G |- Ti : Type
+  ---------------------------------------------- :: Record
+  G |- Record { x1 : T1 , ... , xi : Ti } : Type
+
+defn
+  G |- A <= B :: :: subtyping :: 'S_'
+  {{com Subtyping }}
+by  
+
+  B <~> C
+  G |- A <= B && G |- C : K
+  ------------------------- :: Conv
+  G |- A <= C
+
+  G, x <= A |-   
+  ------------------- :: TVar
+  G, x <= A |- x <= A
+
+  G |- A : K
+  ---------- :: Refl
+  G |- A <= A
+
+  G |- A <= B && G |- B <= C
+  -------------------------- :: Trans
+  G |- A <= C
+
+  G |- A : K && G |- Top K1 : K
+  ----------------------------- :: Top
+  G |- A <= Top K1
+
+  G |- A -> B : Type
+  G |- C <= A && G |- B <= D
+  -------------------------- :: Arrow
+  G |- A -> B <= C -> D
+
+  G |- Forall(x <= A).B : Type
+  G |- C <= A && G, x <= C |- B <= D
+  --------------------------------------------- :: Forall
+  G |- Forall (x <= A) . B <= Forall (x <= C).D
+
+  G |- Some(x <= A).B : Type
+  G |- A <= C && G, x <= C |- B <= D
+  --------------------------------------------- :: Some
+  G |- Some (x <= A) . B <= Some (x <= C).D  
+
+defn 
+  G |- t : T :: :: typing :: 'T_'
+  {{com Type Checking }}
+by
+
+defn
+  A ~> B :: :: red :: 'R_'
+  {{com Reduction }}
+by
+
+defn
+  A <~> B :: :: beq :: 'BEq_'
+  {{com $\beta$-equality }}
+by
+   A ~> B && B ~> A
+   ---------------- :: Eq
+   A <~> B
