@@ -70,7 +70,7 @@ repl = do
                Just ":q" -> return ()
                Just "" -> innerLoop config
                Just input -> do                 
-                 outputStrLn . (PPrint.pprint) $ Parser.parseCore input
+                 outputStrLn . show $ fmap (PPrint.pprint) (Parser.parseCore input)
                  innerLoop config
 
 -- | The main function of the repl. `Main.main` simply calls this

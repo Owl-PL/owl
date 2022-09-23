@@ -152,6 +152,8 @@ setIndent :: Column -> MarkupState String ()
 setIndent i = do (c, _, m) <- get
                  put (c, i, m)
 
+-- * AST Markup and Pretty Printing
+
 -- | Adds parens around the markup.
 markupParenExpr :: AST.Expr -> MarkupState String ()
 markupParenExpr (AST.Atomic ae) = do
@@ -160,8 +162,6 @@ markupParenExpr e = do
   string "("
   markupExpr e
   string ")"
-  
--- * AST Markup and Pretty Printing
 
 -- | Marks up an atomic expression.
 markupAExpr :: AST.AExpr -> MarkupState String ()

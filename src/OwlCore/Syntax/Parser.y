@@ -1,14 +1,18 @@
 {
 -- | The Happy parser.
 module OwlCore.Syntax.Parser (parseCoreExpr, parseCore) where
-
+    
 import qualified OwlCore.Syntax.Lexer as Lexer
 import qualified OwlCore.Syntax.AST as AST  
+import Utils.Error
 
+import System.IO (hPutStrLn, stderr)    
+    
 }
 
 %name parse
 %tokentype { Lexer.Token }
+%monad { ParseError } { bindExcept } { returnExcept }
 %error { parseError }
 
 %token
@@ -107,21 +111,27 @@ AExpr : var                      { AST.Var $1     }
 
 {
 
+type ParseError a = Except String a  
+
+-- errorMessage :: [Lexer.Token] -> String
+-- errorMessage [] = ""
+-- errorMessage ((Fun (AlexPosn off line column)) : ts) = undefined
+  
 -- | Issues a parse error using the lexer stream.
-parseError :: [Lexer.Token] -> a
-parseError tks = error $ "Parse Error: "++(show tks)
+parseError :: [Lexer.Token] -> ParseError a
+parseError tks = Failed . show $ tks
 
 -- | Parses an expression.    
-parseCoreExpr :: String -> AST.Expr
-parseCoreExpr e =
-  case parseCore sc of
-    [ AST.SC _ _ e' ] -> e'
+parseCoreExpr :: String -> ParseError AST.Expr
+parseCoreExpr e = do
+  [ AST.SC _ _ e' ] <- parseCore sc
+  return e'  
  where
     sc = "main = " ++ e
   
 -- | Parses a program.
 --   This is simply the composition of `Lexer.Lexer` and the Happy parser.
-parseCore :: String -> AST.Prog
+parseCore :: String -> ParseError AST.Prog
 parseCore = parse  . Lexer.lexer
 
 }
