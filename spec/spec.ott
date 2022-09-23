@@ -1,0 +1,74 @@
+embed
+    {{tex-preamble        
+    }}
+metavar termvar,    x, y, z, w, f  ::=
+indexvar indices,   n, k, i, j ::=
+
+grammar
+
+K :: 'kinds_' ::= {{com Kinds}}
+  | Type     :: :: Type
+  | K1 -> K2 :: :: TArrow
+
+A, B, T :: 'types_' ::= {{com Types}}
+  | x                                  :: :: Var
+  | x : K { T }                        :: :: TFun
+  | T1 T2                              :: :: TApp
+  | Top K                              :: :: Top
+  | T1 -> T2                           :: :: Arrow
+  | Forall ( x : K ) . T               :: :: Forall
+  | Some ( x : K ) . T                 :: :: Some
+  | Record { x1 : T1 , ... , xi : Ti } :: :: TRecord  
+
+t :: 'terms_' ::= {{com Terms }}
+  | x                                  :: :: Var
+  | function x : T { t }               :: :: Fun
+  | function x : K { t }               :: :: TFun
+  | t1 t2                              :: :: App
+  | t T                                :: :: TApp
+  | pack ( T1 , e ) T2                 :: :: Pack  
+  | let ( A , x ) = t1 in t2           :: :: Unpack
+  | record { x1 = t1 , ... , xi = ti } :: :: Record
+  | t . x                              :: :: FieldSelection
+
+G :: 'contexts_' ::= {{com Contexts }}
+  | empty       ::   :: Empty
+  | G , x : T   ::   :: VarExt
+  | G , x <= T  ::   :: TVarExt
+  | x : T       :: M :: Var
+  | x <= T      :: M :: TVar
+  | G1 , G2     :: M :: Concat
+
+terminals :: 'terminal_' ::=
+  | class     :: :: class
+  {{tex \mathsf{Class} }}
+  | ->        :: :: RArrow
+  {{tex \to }}
+  | Type      :: :: Type
+  {{tex \mathsf{Type} }}
+  | Top       :: :: Top
+  {{tex \mathsf{Top} }}
+  | Forall    :: :: Forall
+  {{tex \mathsf{Forall} }}
+  | Some      :: :: Some
+  {{tex \mathsf{Some} }}
+  | Record    :: :: Record
+  {{tex \mathsf{Record} }}
+  | Function  :: :: Function
+  {{tex \mathsf{function} }}
+  | pack      :: :: Pack
+  {{tex \mathsf{Pack} }}
+  | let       :: :: let
+  {{tex \mathsf{let} }}
+  | in        :: :: in
+  {{tex \mathsf{in} }}
+
+formula :: 'formula_' ::=
+    | judgement1                        ::   :: judgement
+    | judgement1 , ... , judgementi     ::   :: judgementM
+    | formula1 && formula2              ::   :: Quad
+    | ( formula )                       :: S :: parens
+    {{tex [[formula]] }}
+
+defns
+  Judgments :: ''   ::=
