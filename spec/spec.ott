@@ -200,6 +200,18 @@ defn
   {{com Type Checking }}
 by
 
+  G |- t : A && G |- A <= B
+  ------------------------- :: Sub
+  G |- t : B
+
+  G, x : A |-
+  ----------------- :: Var
+  G, x : A |- x : A
+
+  G, x : A |- t : B
+  ---------------------------------- :: Arrow
+  G |- function x : A { t } : A -> B
+
 defn
   A ~> B :: :: red :: 'R_'
   {{com Reduction }}
