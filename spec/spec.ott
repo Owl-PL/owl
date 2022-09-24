@@ -2,7 +2,7 @@ embed
     {{tex-preamble        
     }}
 metavar termvar,    x, y, z, w, f  ::=
-indexvar indices,   n, k, i, j ::=
+indexvar indices,   m, n, k, i, j ::=
 
 grammar
 
@@ -66,13 +66,22 @@ terminals :: 'terminal_' ::=
   {{tex \mathsf{let} }}
   | in        :: :: in
   {{tex \mathsf{in} }}
+  | forall    :: :: MForall
+  {{tex \forall }}
+  | subseteq  :: :: Subseteq
+  {{tex \subseteq }}
+
+dotvar :: 'dotvar_' ::=
+  | x1 , ... , xi :: :: Dotvar
 
 formula :: 'formula_' ::=
     | judgement1                        ::   :: judgement
     | judgement1 , ... , judgementi     ::   :: judgementM
     | formula1 && formula2              ::   :: Quad
+    | forall x = y , formula            :: M :: Forall
     | ( formula )                       :: S :: parens
     {{tex [[formula]] }}
+    | { dotvar1 } subseteq { dotvar2 }   :: M :: SSL
 
 defns
   Judgments :: '' ::=
@@ -103,8 +112,8 @@ by
   G, x <= T |- x : K
 
   G, x <= Top K1 |- T2 : K2
-  -------------------------------------------- :: FunI
-  G |- function x : K1 -> K2 { T2 } : K1 -> K2
+  -------------------------------------- :: FunI
+  G |- function x : K1 { T2 } : K1 -> K2
   
   G |- A : K1 -> K2  &&  G |- B : K1
   ---------------------------------- :: FunE
@@ -171,6 +180,20 @@ by
   G |- A <= C && G, x <= C |- B <= D
   --------------------------------------------- :: Some
   G |- Some (x <= A) . B <= Some (x <= C).D  
+
+  {y1 , ... , yn} subseteq {x1 , ... , xm}
+  forall xi = yj, G |- Ai <= Bj
+  G |- Record {x1 : A1 , ..., xm : Am } : Type
+  ----------------------------------------------------------------- :: Record
+  G |- Record {x1 : A1,...,xm : Am} <= Record {y1 : B1,...,yn : Bn}
+
+  G, x <= Top K |- A <= B
+  ------------------------------------------------- :: Fun
+  G |- function x : K { A } <= function x : K { B }
+
+  G |- A <= B && G |- A C : K
+  --------------------------- :: App
+  G |- A C <= B C
 
 defn 
   G |- t : T :: :: typing :: 'T_'
