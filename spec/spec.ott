@@ -6,19 +6,21 @@ indexvar indices,   m, n, k, i, j ::=
 
 grammar
 
-K :: 'kinds_' ::= {{com Kinds}}
-  | Type     :: :: Type
-  | K1 -> K2 :: :: TArrow
+K :: 'kinds_' ::= {{com Kinds}}  
+  | Pow ( A )         ::   :: Power
+  | ( x : K1 ) -> K2  ::   :: TArrow
+  | [ A / x ] K       :: M :: Subst
+  | Type              :: S :: Type
 
 A, B, C, D, T :: 'types_' ::= {{com Types}}
   | x                                  :: :: Var
-  | function x : K { T }                        :: :: TFun
-  | A B                               :: :: TApp
-  | Top K                              :: :: Top
-  | A -> B                           :: :: Arrow
-  | Forall ( x <= A ) . B              :: :: Forall
-  | Some ( x <= A ) . B                :: :: Some
-  | Record { x1 : T1 , ... , xi : Ti } :: :: TRecord  
+  | function x : K { T }               :: :: TFun
+  | A B                                :: :: TApp
+  | Top                                :: :: Top
+  | A -> B                             :: :: Arrow
+  | ( x : K ) -> B                     :: :: Forall
+  | Some ( x : K ) . B                 :: :: Some
+  | Record { x1 : T1 , ... , xi : Ti } :: :: TRecord   
 
 t :: 'terms_' ::= {{com Terms }}
   | x                                  :: :: Var
@@ -34,9 +36,11 @@ t :: 'terms_' ::= {{com Terms }}
 G {{tex \Gamma }} :: 'contexts_' ::= {{com Contexts }}
   | empty       ::   :: Empty
   | G , x : T   ::   :: VarExt
-  | G , x <= T  ::   :: TVarExt
+  | G , x : K   ::   :: TVarExt
+  | G , x <= T  :: S :: TSVarExt
   | x : T       :: M :: Var
-  | x <= T      :: M :: TVar
+  | x : K       :: M :: TVar
+  | x <= T      :: S :: TSVar
   | G1 , G2     :: M :: Concat
 
 terminals :: 'terminal_' ::=
@@ -50,6 +54,8 @@ terminals :: 'terminal_' ::=
   {{tex \emptyset }}
   | Type      :: :: Type
   {{tex \mathsf{Type} }}
+  | Kind      :: :: Kind
+  {{tex \mathsf{Kind} }}
   | Top       :: :: Top
   {{tex \mathsf{Top} }}
   | Forall    :: :: Forall
@@ -70,6 +76,14 @@ terminals :: 'terminal_' ::=
   {{tex \forall }}
   | subseteq  :: :: Subseteq
   {{tex \subseteq }}
+  | Pow       :: :: Power
+  {{tex \mathsf{Pow} }}
+  | dom       :: :: Domain
+  {{tex \mathsf{dom} }}
+  | nin       :: :: Nin
+  {{tex \not\in }}
+  | <:>       :: :: TEq
+  | <::>      :: :: KEq
 
 dotvar :: 'dotvar_' ::=
   | x1 , ... , xi :: :: Dotvar
@@ -81,7 +95,8 @@ formula :: 'formula_' ::=
     | forall x = y , formula            :: M :: Forall
     | ( formula )                       :: S :: parens
     {{tex [[formula]] }}
-    | { dotvar1 } subseteq { dotvar2 }   :: M :: SSL
+    | { dotvar1 } subseteq { dotvar2 }  :: M :: SSL
+    | x nin dom ( G )                   :: M :: Dom    
 
 defns
   Judgments :: '' ::=
@@ -94,54 +109,109 @@ by
   --------- :: Empty
   empty |- 
 
-  G |- T : K
-  ------------ :: TVar
+  G |- T : K && x nin dom(G)
+  -------------------------- :: TVar
   G, x <= T |-
 
-  G |- T : Type
-  ------------- :: TVar
+  G |- T : Type && x nin dom(G)
+  ----------------------------- :: TVar
   G, x : T |-
 
+  G |- K : Kind && x nin dom(G)
+  ----------------------------- :: KVar
+  G, x : K |-
+
 defn 
-  G |- T : K :: :: kinding :: 'K_'
-  {{com Kind Checking }}
+  G |- K : Kind :: :: wf_kinds :: 'WK_'
+  {{com Wellformed Kinds }}
 by  
 
-  G |- T : K
-  ------------------ :: TVar
-  G, x <= T |- x : K
+  G |- A : Type
+  ------------------ :: Power
+  G |- Pow(A) : Kind 
 
-  G, x <= Top K1 |- T2 : K2
-  -------------------------------------- :: FunI
-  G |- function x : K1 { T2 } : K1 -> K2
-  
-  G |- A : K1 -> K2  &&  G |- B : K1
-  ---------------------------------- :: FunE
-  G |- A B : K2
+  G |- K1 : Kind && G, x : K1 |- K2 : Kind
+  ---------------------------------------- :: Arrow
+  G |- (x : K1) -> K2 : Kind
+
+defn 
+  G |- T : Type :: :: wf_type :: 'WT_'
+  {{com Wellformed Type }}
+by  
 
   G |- 
   -------------- :: Top
-  G |- Top K : K
+  G |- Top : Type
 
   G |- A : Type && G |- B : Type
   ------------------------------ :: Arrow
   G |- A -> B : Type
 
-  G, x <= A |- B : Type
-  ------------------------------- :: Forall
-  G |- Forall (x <= A) . B : Type
+  G |- K : Kind && G, x : K |- B : Type
+  ------------------------------------- :: Forall
+  G |- (x : K) -> B : Type
 
-  G, x <= A |- B : Type
-  ----------------------------- :: Some
-  G |- Some (x <= A) . B : Type
+  G |- K : Kind && G, x : K |- B : Type
+  ------------------------------------- :: Some
+  G |- Some (x : K) . B : Type
 
   G |-  
   G |- T1 : Type , ... , G |- Ti : Type
   ---------------------------------------------- :: Record
   G |- Record { x1 : T1 , ... , xi : Ti } : Type
 
+defn 
+  G |- T : K :: :: kinding :: 'K_'
+  {{com Kind Checking }}
+by  
+
+  G |- A : K1 && G |- K1 <= K2
+  ---------------------------- :: Sub
+  G |- A : K2
+
+  G |- A : Type
+  --------------- :: Power
+  G |- A : Pow(A)
+
+  G1, x : K,G2 |-  
+  --------------------- :: TVar
+  G, x : K |- x : K  
+
+  G |- K1 : Kind && G, x : K1 |- T2 : K2
+  -------------------------------------------- :: FunI
+  G |- function x : K1 { T2 } : (x : K1) -> K2
+  
+  G |- A : (x : K1) -> K2  &&  G |- B : K1
+  ---------------------------------------- :: FunE
+  G |- A B : [B/x]K2  
+
+  G |- A : K1 && G |- K1 <::> K2
+  ------------------------------ :: Ext
+  G |- A : K2
+
+defn 
+  G |- K1 <= K2 :: :: subkinding :: 'SK_'
+  {{com SubKinding }}
+by
+
+  G |- K1 <::> K2
+  --------------- :: Refl
+  G |- K1 <= K2
+
+  G |- K1 <= K2 && G |- K2 <= K3
+  ------------------------------ :: Trans
+  G |- K1 <= K2
+
+  G |- A <= B
+  --------------------- :: Power
+  G |- Pow(A) <= Pow(B)
+
+  G |- K1 && G, x : K1 |- K2 <= K3
+  ------------------------------------- :: Arrow
+  G |- (x : K1) -> K2 <= (x : K1) -> K3
+
 defn
-  G |- A <= B :: :: subtyping :: 'S_'
+  G |- A <= B :: :: subtyping :: 'ST_'
   {{com Subtyping }}
 by  
 
@@ -154,9 +224,9 @@ by
   ------------------- :: TVar
   G, x <= A |- x <= A
 
-  G |- A : K
-  ---------- :: Refl
-  G |- A <= A
+  G |- A <:> B
+  ------------ :: Refl
+  G |- A <= B
 
   G |- A <= B && G |- B <= C
   -------------------------- :: Trans
@@ -171,15 +241,15 @@ by
   -------------------------- :: Arrow
   G |- A -> B <= C -> D
 
-  G |- Forall(x <= A).B : Type
+  G |- (x :  Pow(A)) -> B : Type
   G |- C <= A && G, x <= C |- B <= D
-  --------------------------------------------- :: Forall
-  G |- Forall (x <= A) . B <= Forall (x <= C).D
+  ------------------------------------------- :: Forall
+  G |- (x : Pow(A)) -> B <= (x : Pow(C)) -> D
 
-  G |- Some(x <= A).B : Type
+  G |- Some(x : Pow(A)).B : Type
   G |- A <= C && G, x <= C |- B <= D
-  --------------------------------------------- :: Some
-  G |- Some (x <= A) . B <= Some (x <= C).D  
+  ------------------------------------------------- :: Some
+  G |- Some (x : Pow(A)) . B <= Some (x : Pow(B)).D  
 
   {y1 , ... , yn} subseteq {x1 , ... , xm}
   forall xi = yj, G |- Ai <= Bj
@@ -204,6 +274,10 @@ by
   ------------------------- :: Sub
   G |- t : B
 
+  G |- t : A && G |- A <:> B
+  -------------------------- :: TExt
+  G |- t : B
+
   G, x : A |-
   ----------------- :: Var
   G, x : A |- x : A
@@ -211,6 +285,32 @@ by
   G, x : A |- t : B
   ---------------------------------- :: Arrow
   G |- function x : A { t } : A -> B
+
+defn
+  G |- K1 <::> K2 :: :: keq :: 'KEq_'
+  {{com kind equality }}
+by
+
+  G |- K1 <::> K2
+  --------------- :: Sym
+  G |- K2 <::> K1
+
+  G |- K1 <::> K2 && G |- K2 <::> K3
+  ---------------------------------- :: Trans
+  G |- K1 <::> K3
+
+  G |- A <:> B 
+  ----------------------- :: Power
+  G |- Pow(A) <::> Pow(B)
+
+  G |- K1 <::> K3 && G,x : K1 |- K2 <::> K4
+  ----------------------------------------- :: Arrow
+  G |- (x : K1) -> K2 <::> (x : K3) -> K4
+
+defn
+  G |- A <:> B :: :: tyeq :: 'TEq_'
+  {{com kind equality }}
+by
 
 defn
   A ~> B :: :: red :: 'R_'
