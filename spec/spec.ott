@@ -13,25 +13,29 @@ K :: 'kinds_' ::= {{com Kinds}}
   | Type              :: S :: Type
 
 A, B, C, D, T :: 'types_' ::= {{com Types}}
-  | x                                  :: :: Var
-  | function x : K { T }               :: :: TFun
-  | A B                                :: :: TApp
-  | Top                                :: :: Top
-  | A -> B                             :: :: Arrow
-  | ( x : K ) -> B                     :: :: Forall
-  | Some ( x : K ) . B                 :: :: Some
-  | Record { x1 : T1 , ... , xi : Ti } :: :: TRecord   
+  | x                                  ::   :: Var
+  | function x : K { T }               ::   :: TFun
+  | A B                                ::   :: TApp
+  | Top                                ::   :: Top
+  | A -> B                             ::   :: Arrow
+  | ( x : K ) -> B                     ::   :: Forall
+  | Some ( x : K ) . B                 ::   :: Some
+  | Record { x1 : T1 , ... , xi : Ti } ::   :: TRecord   
+  | [ A / x ] B                        :: M :: Subst
+  | ( A )                              :: S :: Paren
 
 t :: 'terms_' ::= {{com Terms }}
-  | x                                  :: :: Var
-  | function x : T { t }               :: :: Fun
-  | function x : K { t }               :: :: TFun
-  | t1 t2                              :: :: App
-  | t T                                :: :: TApp
-  | pack ( T1 , e ) T2                 :: :: Pack  
-  | let ( A , x ) = t1 in t2           :: :: Unpack
-  | record { x1 = t1 , ... , xi = ti } :: :: Record
-  | t . x                              :: :: FieldSelection
+  | top                                ::   :: Top
+  | x                                  ::   :: Var
+  | function x : T { t }               ::   :: Fun
+  | function x : K { t }               ::   :: TFun
+  | t1 t2                              ::   :: App
+  | t T                                ::   :: TApp
+  | pack ( T1 , e ) T2                 ::   :: Pack  
+  | let ( A , x ) = t1 in t2           ::   :: Unpack
+  | record { x1 = t1 , ... , xi = ti } ::   :: Record
+  | t . x                              ::   :: FieldSelection
+  | ( t )                              :: S :: Paren
 
 G {{tex \Gamma }} :: 'contexts_' ::= {{com Contexts }}
   | empty       ::   :: Empty
@@ -58,6 +62,8 @@ terminals :: 'terminal_' ::=
   {{tex \mathsf{Kind} }}
   | Top       :: :: Top
   {{tex \mathsf{Top} }}
+  | top       :: :: TopTerm
+  {{tex \mathsf{top} }}
   | Forall    :: :: Forall
   {{tex \mathsf{Forall} }}
   | Some      :: :: Some
@@ -134,31 +140,6 @@ by
   ---------------------------------------- :: Arrow
   G |- (x : K1) -> K2 : Kind
 
-defn 
-  G |- T : Type :: :: wf_type :: 'WT_'
-  {{com Wellformed Type }}
-by  
-
-  G |- 
-  -------------- :: Top
-  G |- Top : Type
-
-  G |- A : Type && G |- B : Type
-  ------------------------------ :: Arrow
-  G |- A -> B : Type
-
-  G |- K : Kind && G, x : K |- B : Type
-  ------------------------------------- :: Forall
-  G |- (x : K) -> B : Type
-
-  G |- K : Kind && G, x : K |- B : Type
-  ------------------------------------- :: Some
-  G |- Some (x : K) . B : Type
-
-  G |-  
-  G |- T1 : Type , ... , G |- Ti : Type
-  ---------------------------------------------- :: Record
-  G |- Record { x1 : T1 , ... , xi : Ti } : Type
 
 defn 
   G |- T : K :: :: kinding :: 'K_'
@@ -188,6 +169,27 @@ by
   G |- A : K1 && G |- K1 <::> K2
   ------------------------------ :: Ext
   G |- A : K2
+
+  G |- 
+  -------------- :: Top
+  G |- Top : Type
+
+  G |- A : Type && G |- B : Type
+  ------------------------------ :: Arrow
+  G |- A -> B : Type
+
+  G |- K : Kind && G, x : K |- B : Type
+  ------------------------------------- :: Forall
+  G |- (x : K) -> B : Type
+
+  G |- K : Kind && G, x : K |- B : Type
+  ------------------------------------- :: Some
+  G |- Some (x : K) . B : Type
+
+  G |-  
+  G |- T1 : Type , ... , G |- Ti : Type
+  ---------------------------------------------- :: Record
+  G |- Record { x1 : T1 , ... , xi : Ti } : Type
 
 defn 
   G |- K1 <= K2 :: :: subkinding :: 'SK_'
@@ -232,19 +234,17 @@ by
   -------------------------- :: Trans
   G |- A <= C
 
-  G |- A : K && G |- Top K1 : K
-  ----------------------------- :: Top
-  G |- A <= Top K1
+  G |- A : Type
+  ------------- :: Top
+  G |- A <= Top
 
-  G |- A -> B : Type
   G |- C <= A && G |- B <= D
   -------------------------- :: Arrow
   G |- A -> B <= C -> D
-
-  G |- (x :  Pow(A)) -> B : Type
-  G |- C <= A && G, x <= C |- B <= D
-  ------------------------------------------- :: Forall
-  G |- (x : Pow(A)) -> B <= (x : Pow(C)) -> D
+  
+  G |- K2 <= K1 && G, x <= K2 |- B <= D
+  ------------------------------------- :: Forall
+  G |- (x : K1) -> B <= (x : K2) -> D
 
   G |- Some(x : Pow(A)).B : Type
   G |- A <= C && G, x <= C |- B <= D
@@ -274,17 +274,33 @@ by
   ------------------------- :: Sub
   G |- t : B
 
-  G |- t : A && G |- A <:> B
-  -------------------------- :: TExt
+  G |- t : A && G |- A <:> B : Type
+  --------------------------------- :: TExt
   G |- t : B
+
+  G |-
+  -------------- :: Top
+  G |- top : Top
 
   G, x : A |-
   ----------------- :: Var
   G, x : A |- x : A
 
+  G |- K : Kind && G, x : K |- t : B
+  ----------------------------------------- :: TArrow
+  G |- function x : K  { t } : (x : K) -> B
+
+  G |- t1 : (x : K) -> B && G |- A : K
+  ------------------------------------ :: TApp
+  G |- t1 A : [A/x]B
+
   G, x : A |- t : B
   ---------------------------------- :: Arrow
   G |- function x : A { t } : A -> B
+
+  G |- t1 : A -> B && G |- t2 : A
+  ------------------------------- :: App
+  G |- t1 t2 : B
 
 defn
   G |- K1 <::> K2 :: :: keq :: 'KEq_'
@@ -299,7 +315,7 @@ by
   ---------------------------------- :: Trans
   G |- K1 <::> K3
 
-  G |- A <:> B 
+  G |- A <:> B : Type
   ----------------------- :: Power
   G |- Pow(A) <::> Pow(B)
 
@@ -308,9 +324,51 @@ by
   G |- (x : K1) -> K2 <::> (x : K3) -> K4
 
 defn
-  G |- A <:> B :: :: tyeq :: 'TEq_'
-  {{com kind equality }}
+  G |- A <:> B : K :: :: tyeq :: 'TEq_'
+  {{com type equality }}
 by
+
+  G |- A <:> B : K
+  ---------------- :: Sym
+  G |- B <:> A : K
+
+  G |- A <:> B : K && G |- B <:> C : K
+  ------------------------------------ :: Trans
+  G |- A <:> C : K
+
+  G |- x : K
+  ---------------- :: Var
+  G |- x <:> x : K
+
+  G |-
+  ----------------------- :: Top
+  G |- Top <:> Top : Type
+
+  G |- K1 <::> K2 && G, x : K1 |- A <:> B : Type
+  --------------------------------------------- :: Forall
+  G |- (x : K1) -> A <:> (x : K2) -> B : Type
+
+  G |- A1 <:> A2 : Type && G |- B1 <:> B2 : Type
+  ----------------------------------------------- :: Arrow
+  G |- A1 -> B1 <:> A2 -> B2 : Type
+
+  G |- K1 <::> K2 && G,x : K1 |- A <:> B : K3
+  -------------------------------------------------------------------- :: Fun
+  G |- function x : K1 { A } <:>function x : K2 { B } : (x : K1) -> K3
+
+  G |- A1 <:> A2 : (x : K1) -> K2 && G |- B1 <:> B2 : K1
+  ------------------------------------------------------ :: App
+  G |- A1 B1 <:> A2 B2 : [A/x]K2
+
+  G |- B : (x : K1) -> K2 && x nin dom(G)
+  --------------------------------------------------- :: Eta
+  G |- function x : K1 { B x } <:> B : (x : K1) -> K2
+
+  G |- (function x : K1 { B }) A : K2
+  ---------------------------------------------- :: Beta
+  G |- (function x : K1 { B }) A <:> [A/x]B : K2
+
+  
 
 defn
   A ~> B :: :: red :: 'R_'
