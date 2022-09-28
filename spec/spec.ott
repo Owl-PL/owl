@@ -36,6 +36,8 @@ t :: 'terms_' ::= {{com Terms }}
   | record { x1 = t1 , ... , xi = ti } ::   :: Record
   | t . x                              ::   :: FieldSelection
   | ( t )                              :: S :: Paren
+  | [ A / x ] t                        :: M :: TSubst
+  | [ t1 / x ] t2                      :: M :: Subst
 
 G {{tex \Gamma }} :: 'contexts_' ::= {{com Contexts }}
   | empty       ::   :: Empty
@@ -90,6 +92,8 @@ terminals :: 'terminal_' ::=
   {{tex \not\in }}
   | <:>       :: :: TEq
   | <::>      :: :: KEq
+  | <->       :: :: Eq
+  {{tex \rightleftarrow }}
 
 dotvar :: 'dotvar_' ::=
   | x1 , ... , xi :: :: Dotvar
@@ -217,7 +221,7 @@ defn
   {{com Subtyping }}
 by  
 
-  B <~> C
+  G |- B <:> C : Type
   G |- A <= B && G |- C : K
   ------------------------- :: Conv
   G |- A <= C
@@ -368,17 +372,63 @@ by
   ---------------------------------------------- :: Beta
   G |- (function x : K1 { B }) A <:> [A/x]B : K2
 
-  
-
 defn
-  A ~> B :: :: red :: 'R_'
-  {{com Reduction }}
+  G |- t1 <-> t2 : A :: :: termeq :: 'Eq_'
+  {{com term equality }}
 by
 
-defn
-  A <~> B :: :: beq :: 'BEq_'
-  {{com $\beta$-equality }}
-by
-   A ~> B && B ~> A
-   ---------------- :: Eq
-   A <~> B
+G |- t1 <-> t2 : A
+------------------ :: Sym
+G |- t2 <-> t1 : A
+
+G |- t1 <-> t2 : A && G |- t2 <-> t3 : A
+---------------------------------------- :: Trans
+G |- t1 <-> t3 : A
+
+G |- t1 <-> t2 : A && G |- A <= B
+--------------------------------- :: Sub
+G |- t1 <-> t2 : B
+
+G |- x : A
+---------------- :: Var
+G |- x <-> x : A
+
+G |-
+---------------------- :: Top
+G |- top <-> top : Top
+
+G |- t1 <-> t1 : Top && G |- t2 <-> t2 : Top
+-------------------------------------------- :: Collapse
+G |- t1 <-> t2 : Top
+
+G |- K1 <::> K2 && G,x : K1 |- t1 <-> t2 : B
+---------------------------------------------------------------------- :: TFun
+G |- function x : K1 { t1 } <-> function x : K2 { t2 } : (x : K1) -> B
+
+G |- A1 <:> A2 : Type && G,x : A1 |- t1 <-> t2 : B
+---------------------------------------------------------------- :: Fun
+G |- function x : A1 { t1 } <-> function x : A2 { t2 } : A1 -> B
+
+G |- t1 <-> t2 : (x : K) -> B && G |- A1 <:> A2 : K
+--------------------------------------------------- :: TApp
+G |- t1 A1 <-> t2 A2 : [A1/x]B
+
+G |- t1 <-> t3 : A -> B && G |- t2 <-> t4 : A
+--------------------------------------------- :: TApp
+G |- t1 t2 <-> t3 t4 : B
+
+G |- t : (x : K) -> B && x nin dom(G)
+------------------------------------------------ :: TEta
+G |- function x : K { t x } <-> t : (x : K) -> B
+
+G |- t : A -> B && x nin dom(G)
+------------------------------------------ :: Eta
+G |- function x : A { t x } <-> t : A -> B
+
+G |- (function x : K { t }) A : B
+-------------------------------------------- :: TBeta
+G |- (function x : K { t }) A <-> [A/x]t : B
+
+G |- (function x : K { t1 }) t2 : B
+------------------------------------------------ :: Beta
+G |- (function x : K { t1 }) t2 <-> [t1/x]t2 : B
