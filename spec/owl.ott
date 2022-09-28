@@ -34,22 +34,22 @@ A, B, C, D, T :: 'types_' ::= {{com Types}}
   | ( A )                              :: S :: Paren
 
 t :: 'terms_' ::= {{com Terms }}
-  | top                                        ::   :: Top
-  | x                                          ::   :: Var
-  | function x : r T { t }                     ::   :: GrdFun
-  | function x : T { t }                       :: S :: Fun
-  | function x : K { t }                       ::   :: TFun
-  | function ( x1 : T1 , ... , xi : Ti ) { t } :: S :: MFun
-  | function ( x1 : K1 , ... , xi : Ki ) { t } :: S :: TMFun
-  | t1 t2                                      ::   :: App
-  | t T                                        ::   :: TApp
-  | pack ( T1 , t ) T2                         ::   :: Pack  
-  | let ( x , y ) = t1 in t2                   ::   :: Unpack
-  | record { x1 = t1 , ... , xi = ti }         ::   :: Record
-  | t . x                                      ::   :: FieldSelection
-  | ( t )                                      :: S :: Paren
-  | [ A / x ] t                                :: M :: TSubst
-  | [ t1 / x ] t2                              :: M :: Subst
+  | top                                              ::   :: Top
+  | x                                                ::   :: Var
+  | function x : r T { t }                           ::   :: GrdFun
+  | function x : T { t }                             :: S :: Fun
+  | function x : K { t }                             ::   :: TFun
+  | function ( x1 : r1 T1 , ... , xi : ri Ti ) { t } :: S :: MFun
+  | function ( x1 : K1 , ... , xi : Ki ) { t }       :: S :: TMFun
+  | t1 t2                                            ::   :: App
+  | t T                                              ::   :: TApp
+  | pack ( T1 , t ) T2                               ::   :: Pack  
+  | let ( x , y r ) = t1 in t2                       ::   :: Unpack
+  | record { x1 = t1 , ... , xi = ti }               ::   :: Record
+  | t . x                                            ::   :: FieldSelection
+  | ( t )                                            :: S :: Paren
+  | [ A / x ] t                                      :: M :: TSubst
+  | [ t1 / x ] t2                                    :: M :: Subst
 
 G {{tex \Gamma }} :: 'contexts_' ::= {{com Contexts }}
   | empty         ::   :: Empty
@@ -337,7 +337,7 @@ by
   G2 |- T : Type
   G1 |- t1 : Some (x : K).B && G2,x : K,y : r B |- t2 : T
   ------------------------------------------------------- :: Unpack
-  G1+G2 |- let (x,y) = t1 in t2 : T
+  G1+G2 |- let (x,y r) = t1 in t2 : T
 
   G1 |- t1 : A1 , ... , Gi |- ti : Ai
   ---------------------------------------------------------------------------------- :: Record
@@ -464,12 +464,12 @@ G |- pack (T1,t1) T2 <-> pack (T3,t2) T4 : T2
 G2 |- T : Type
 G1 |- t1 <-> t3 : Some (x : K).B 
 G2, x : K, y : r B |- t2 <-> t3 : T
----------------------------------------------------------- :: Unpack
-G1+G2 |- let (x,y) = t1 in t2 <-> let (x,y) = t3 in t4 : T
+-------------------------------------------------------------- :: Unpack
+G1+G2 |- let (x,y r) = t1 in t2 <-> let (x,y r) = t3 in t4 : T
 
-G |- let (x,y) = pack (A,t1) B in t2 : C
----------------------------------------------------------- :: SomeBeta
-G |- let (x,y) = pack (A,t1) B in t2 <-> [T/x][t1/y]t2 : C
+G |- let (x,y r) = pack (A,t1) B in t2 : C
+------------------------------------------------------------ :: SomeBeta
+G |- let (x,y r) = pack (A,t1) B in t2 <-> [T/x][t1/y]t2 : C
 
 G |- K1 <::> K2 && G,x : K1 |- t1 <-> t2 : B
 ---------------------------------------------------------------------- :: TFun
