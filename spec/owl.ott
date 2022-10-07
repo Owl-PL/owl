@@ -49,7 +49,7 @@ t :: 'terms_' ::= {{com Terms }}
   | let ( x , y r ) = t1 in t2                       ::   :: Unpack
   | record { x1 = t1 , ... , xi = ti }               ::   :: Record
   | t . x                                            ::   :: FieldSelection
-  | let Mon ( x , r ) = t1 in t2                     ::   :: Bind
+  | let Mon ( x ) = t1 in t2                         ::   :: Bind
   | return t                                         ::   :: Return
   | ( t )                                            :: S :: Paren
   | [ A / x ] t                                      :: M :: TSubst
@@ -369,7 +369,7 @@ by
 
   G2 |- t1 : Mon(A,s1) && G1, x : r A, G3 |- t2 : Mon(B,s2) 
   --------------------------------------------------------- :: Bind
-  G1+r * G2+G3 |- let Mon(x,s1) = t1 in t2 : Mon(B,s1 . s2)
+  G1+r * G2+G3 |- let Mon(x) = t1 in t2 : Mon(B,s1 . s2)
 
 defn
   G |- K1 <::> K2 :: :: keq :: 'KEq_'
@@ -544,3 +544,8 @@ G |- (record {x1 = t1, ..., xm = tm}).xi : Ai
 G |- (record {x1 = t1, ..., xm = tm}).xi <-> ti : Ai
 
 %% Add reduction for monads.
+
+G2 |- t1 : A && G1,x : r A,G3 |- t2 : Mon(B,s)
+-------------------------------------------------------------------- :: MonBeta
+G1+r * G2+G3 |- let Mon(x) = return t1 in t2 <-> [t1/x]t2 : Mon(B,s)
+
