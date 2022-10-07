@@ -6,12 +6,13 @@ indexvar indices,   m, n, k, i, j ::=
 
 grammar
 
-r :: 'srelem_' ::= {{com Semiring Elements }}
+r, s :: 'srelem_' ::= {{com Semiring Elements }}
   | 1        :: :: One
   | 0        :: :: Zero
   | omega    :: :: Omega
   | r1 * r2  :: :: Add
   | r1 + r2  :: :: Plus  
+  | s1 . s2  :: :: EffectMonoid
 
 K :: 'kinds_' ::= {{com Kinds}}  
   | Pow ( A )            ::   :: Power
@@ -29,7 +30,8 @@ A, B, C, D, T :: 'types_' ::= {{com Types}}
   | A -> B                             :: S :: Arrow
   | ( x : K ) -> B                     ::   :: Forall
   | Some ( x : K ) . B                 ::   :: Some
-  | Record { x1 : T1 , ... , xi : Ti } ::   :: TRecord   
+  | Record { x1 : T1 , ... , xi : Ti } ::   :: TRecord
+  | Mon ( A , r )                      ::   :: GrMon
   | [ A / x ] B                        :: M :: Subst
   | ( A )                              :: S :: Paren
 
@@ -47,6 +49,8 @@ t :: 'terms_' ::= {{com Terms }}
   | let ( x , y r ) = t1 in t2                       ::   :: Unpack
   | record { x1 = t1 , ... , xi = ti }               ::   :: Record
   | t . x                                            ::   :: FieldSelection
+  | let Mon ( x , r ) = t1 in t2                     ::   :: Bind
+  | return t                                         ::   :: Return
   | ( t )                                            :: S :: Paren
   | [ A / x ] t                                      :: M :: TSubst
   | [ t1 / x ] t2                                    :: M :: Subst
@@ -110,6 +114,8 @@ terminals :: 'terminal_' ::=
   | <::>      :: :: KEq
   | <->       :: :: Eq
   {{tex \rightleftarrow }}
+  | Mon       :: :: Mon
+  {{tex \mathsf{Mon} }}
 
 dotvar :: 'dotvar_' ::=
   | x1 , ... , xi :: :: Dotvar
@@ -125,6 +131,7 @@ formula :: 'formula_' ::=
     | x nin dom ( G )                   :: M :: Dom    
     | 1 <= i <= n                       :: M :: LeqOne
     | r1 <= r2                          :: M :: Sub
+    | r1  = r2                          :: M :: Eq
     | Zero G                            :: M :: ZeroCtx
 
 defns
@@ -213,6 +220,10 @@ by
   ---------------------------------------------- :: Record
   G |- Record { x1 : T1 , ... , xi : Ti } : Type
 
+  G |- A : Type
+  -------------------- :: Mon
+  G |- Mon(A, r) : Type
+
 defn 
   G |- K1 <= K2 :: :: subkinding :: 'SK_'
   {{com SubKinding }}
@@ -292,6 +303,10 @@ by
   --------------------------- :: App
   G |- A C <= B C
 
+  G |- A <= B && r <= s
+  ------------------------- :: Mon
+  G |- Mon(A,r) <= Mon(B,s) 
+
 defn 
   G |- t : T :: :: typing :: 'T_'
   {{com Type Checking }}
@@ -347,6 +362,14 @@ by
   G |- t : Record {x1 : A1,...,xm : Am} 
   ------------------------------------- :: Dot
   G |- t . xi : Ai
+
+  G |- t : A
+  ------------------------ :: Return
+  G |- return t : Mon(A,1)
+
+  G2 |- t1 : Mon(A,s1) && G1, x : r A, G3 |- t2 : Mon(B,s2) 
+  --------------------------------------------------------- :: Bind
+  G1+r * G2+G3 |- let Mon(x,s1) = t1 in t2 : Mon(B,s1 . s2)
 
 defn
   G |- K1 <::> K2 :: :: keq :: 'KEq_'
@@ -425,6 +448,10 @@ by
   G |- A1 <:> B1 : Type , ... , G |- Am <:> Bm : Type
   ------------------------------------------------------------------------- :: Record
   G |- Record {x1 : A1,...,xm : Am} <:> Record {x1 : B1,...,xm : Bm} : Type
+
+  G |- A <:> B : Type && s1 = s2
+  ----------------------------------- :: Mon
+  G |- Mon(A,s1) <:> Mon(B,s2) : Type
 
 defn
   G |- t1 <-> t2 : A :: :: termeq :: 'Eq_'
@@ -515,3 +542,5 @@ G |- t1 . xi <-> t2 . xi : Record {x1 : A1 , ... , xm : Am}
 G |- (record {x1 = t1, ..., xm = tm}).xi : Ai
 ---------------------------------------------------- :: RecordBeta
 G |- (record {x1 = t1, ..., xm = tm}).xi <-> ti : Ai
+
+%% Add reduction for monads.
