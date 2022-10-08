@@ -6,13 +6,16 @@ indexvar indices,   m, n, k, i, j ::=
 
 grammar
 
-r, s :: 'srelem_' ::= {{com Semiring Elements }}
+s :: 'eff_' ::= {{com Effect Algebra Elements }}
+  | 1        :: :: One
+  | s1 . s2  :: :: EffectMonoid
+
+r :: 'coeff_' ::= {{com Coeffect Semiring Elements }}
   | 1        :: :: One
   | 0        :: :: Zero
   | omega    :: :: Omega
   | r1 * r2  :: :: Add
   | r1 + r2  :: :: Plus  
-  | s1 . s2  :: :: EffectMonoid
 
 K :: 'kinds_' ::= {{com Kinds}}  
   | Pow ( A )            ::   :: Power
@@ -31,7 +34,7 @@ A, B, C, D, T :: 'types_' ::= {{com Types}}
   | ( x : K ) -> B                     ::   :: Forall
   | Some ( x : K ) . B                 ::   :: Some
   | Record { x1 : T1 , ... , xi : Ti } ::   :: TRecord
-  | Mon ( A , r )                      ::   :: GrMon
+  | Mon ( A , s )                      ::   :: GrMon
   | [ A / x ] B                        :: M :: Subst
   | ( A )                              :: S :: Paren
 
@@ -68,6 +71,7 @@ G {{tex \Gamma }} :: 'contexts_' ::= {{com Contexts }}
   | G1 , G2       :: M :: Concat
   | G1 + ... + Gi :: M :: Add
   | r * G         :: M :: Mult
+  | ( G )         :: S :: Paren
 
 terminals :: 'terminal_' ::=
   | class     :: :: class
@@ -131,7 +135,9 @@ formula :: 'formula_' ::=
     | x nin dom ( G )                   :: M :: Dom    
     | 1 <= i <= n                       :: M :: LeqOne
     | r1 <= r2                          :: M :: Sub
-    | r1  = r2                          :: M :: Eq
+    | r1 = r2                           :: M :: Eq
+    | s1 <= s2                          :: M :: ESub
+    | s1  = s2                          :: M :: EEq
     | Zero G                            :: M :: ZeroCtx
 
 defns
@@ -221,8 +227,8 @@ by
   G |- Record { x1 : T1 , ... , xi : Ti } : Type
 
   G |- A : Type
-  -------------------- :: Mon
-  G |- Mon(A, r) : Type
+  --------------------- :: Mon
+  G |- Mon(A, s) : Type
 
 defn 
   G |- K1 <= K2 :: :: subkinding :: 'SK_'
@@ -303,9 +309,9 @@ by
   --------------------------- :: App
   G |- A C <= B C
 
-  G |- A <= B && r <= s
-  ------------------------- :: Mon
-  G |- Mon(A,r) <= Mon(B,s) 
+  G |- A <= B && s1 <= s2
+  --------------------------- :: Mon
+  G |- Mon(A,s1) <= Mon(B,s2) 
 
 defn 
   G |- t : T :: :: typing :: 'T_'
@@ -549,3 +555,12 @@ G2 |- t1 : A && G1,x : r A,G3 |- t2 : Mon(B,s)
 -------------------------------------------------------------------- :: MonBeta
 G1+r * G2+G3 |- let Mon(x) = return t1 in t2 <-> [t1/x]t2 : Mon(B,s)
 
+G2 |- t1 : Mon(A,s) && G1,x : r A,G3 |- x : A
+------------------------------------------------------------- :: MonEta
+G1+r * G2+G3 |- let Mon(x) = t1 in return x <-> t1 : Mon(A,s)
+
+
+G3 |- t1 : Mon(A,s1) && x nin dom(G1,G5)
+G2,x : r1 A,G4 |- t2 : Mon(B,s2) && G1,y : r2 B,G5|- t3 : Mon(C,s3)
+-------------------------------------------------------------------------------------------------------------------------------------------------- :: MonAssoc
+G1 + r2 * (G2+r1 * G3 + G4) + G5 |- let Mon(x) = t1 in (let Mon(y) = t2 in t3) <-> let Mon(y) = (let Mon(x) = t1 in t2) in t3 : Mon(C,s1 . s2 . s3)
