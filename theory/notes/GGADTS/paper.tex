@@ -1,0 +1,70 @@
+\documentclass[12pt]{article}
+
+%% Layout:
+\usepackage{xcolor}
+\usepackage{supertabular}
+\usepackage{mdframed}
+\usepackage{hyperref}
+\renewcommand{\emph}[1]{\textbf{#1}}
+
+\usepackage{todonotes}
+\setlength{\marginparwidth}{3cm}
+\newcommand{\todoi}[1]{\todo[inline,linecolor=black, backgroundcolor=gray!50!white, bordercolor=black, textcolor=black]{#1}}
+\newcommand{\todom}[1]{\todo[linecolor=black, backgroundcolor=gray!50!white, bordercolor=black, textcolor=black]{#1}}
+
+\usepackage{fouriernc}
+
+\usepackage{amssymb,fdsymbol}
+
+%% Math
+
+\let\square\relax
+\usepackage{amsmath,amsthm,thm-restate}
+\usepackage{mathpartir}
+\renewcommand{\RightTirName}[1]{#1} % Changes labels to math mode.
+
+\usepackage[barr]{xy}
+
+\input{math}   
+
+%% Change "spec" to the language prefix.
+\input{spec-inc}  
+
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{corollary}{Corollary}[theorem]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{definition}[theorem]{Definition}
+
+\bibliographystyle{plain}
+
+\title{Graded Generalized Algebraic Data Types}
+
+\author{Harley Eades}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+  \input{abstract}
+\end{abstract}
+
+\section{Introduction}
+\label{sec:introduction}
+\input{introduction}
+% section introduction (end)
+
+\section{The Fundamental Theory}
+\input{theory}
+
+\nocite{*}
+\bibliography{refs}
+
+\appendix
+
+\end{document}
+
+%%% Local Variables: ***
+%%% mode:latex ***
+%%% tex-main-file: "paper.tex"  ***
+%%% End: ***

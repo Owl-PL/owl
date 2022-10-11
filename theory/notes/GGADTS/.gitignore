@@ -1,0 +1,9 @@
+
+introduction-ottput.tex
+*.log
+*.bbl
+*.aux
+*.blg
+*.out
+*.gz
+spec-inc.tex

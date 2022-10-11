@@ -1,0 +1,14 @@
+-- Point example, p. 2, Pierce:93
+Point = Some(rep : Type) . Record {
+    state : rep; 
+    methods : Record {
+        getX : rep -o Int;
+        setX : rep -o Int -> rep;
+    }
+}
+
+State(F,A) 
+read  : State(F,A)
+write : 
+extend : 
+return : A -> State(1,A)

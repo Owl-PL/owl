@@ -1,0 +1,23 @@
+Suppose $\cat{C}$ is a category and $(\cat{E},\otimes,I)$ is a strict
+monoidal category.
+
+\begin{definition}[Graded $\func{F}$-Algebra]
+    For a functor $\func{F} : \cat{E} \times \cat{C} \mto \cat{C}$, a
+    graded $\func{F}$-algebra is a pair $(\func{A},h)$ that consists
+    of a functor $\func{A} : \cat{E} \mto \cat{C}$ and a family $h$ of
+    morphisms:
+    \[ 
+        h_{m,n} : \func{F}(m,\func{A}(n)) \mto \func{A}(m * n)
+    \]
+    A \emph{homomorphism} between two graded $\func{F}$-algebras
+    $(\func{A},h)$ and $(\func{B},h')$ consists of a morphism
+    \[
+        \alpha : (\func{A},h) \mto (\func{B},h')
+    \]
+    is defined as a natural transformation $\alpha : \func{A}_1 \mto
+    \func{A}_2$ such that:
+    \[
+        \func{F(m,\alpha_n)} ; h'_{m,n} = h_{m,n} ; \alpha_{m \otimes n}
+    \]
+\end{definition}
+

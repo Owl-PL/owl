@@ -1,8 +1,8 @@
 embed
     {{tex-preamble        
     }}
-metavar termvar,    x, y, z, w, f  ::=
-indexvar indices,   m, n, k, i, j ::=
+metavar termvar,  x, y, z, w, f  ::=
+indexvar indices, m, n, k, i, j ::=
 
 grammar
 
@@ -25,18 +25,19 @@ K :: 'kinds_' ::= {{com Kinds}}
   | Type                 :: S :: Type
 
 A, B, C, D, T :: 'types_' ::= {{com Types}}
-  | x                                  ::   :: Var
-  | function x : K { T }               ::   :: TFun
-  | A B                                ::   :: TApp
-  | Top                                ::   :: Top
-  | A r -> B                           ::   :: GrdArrow
-  | A -> B                             :: S :: Arrow
-  | ( x : K ) -> B                     ::   :: Forall
-  | Some ( x : K ) . B                 ::   :: Some
-  | Record { x1 : T1 , ... , xi : Ti } ::   :: TRecord
-  | Mon ( A , s )                      ::   :: GrMon
-  | [ A / x ] B                        :: M :: Subst
-  | ( A )                              :: S :: Paren
+  | x                                    ::   :: Var
+  | function x : K { T }                 ::   :: TFun
+  | A B                                  ::   :: TApp
+  | Top                                  ::   :: Top
+  | A r -> B                             ::   :: GrdArrow
+  | A -> B                               :: S :: Arrow
+  | A -o B                               :: S :: LArrow
+  | ( x : K ) -> B                       ::   :: Forall
+  | Some ( x : K ) . B                   ::   :: Some
+  | Record { x1 : T1 ; ... ; xi : Ti ; } ::   :: TRecord
+  | Mon ( A , s )                        ::   :: GrMon
+  | [ A / x ] B                          :: M :: Subst
+  | ( A )                                :: S :: Paren
 
 t :: 'terms_' ::= {{com Terms }}
   | top                                              ::   :: Top
@@ -50,7 +51,7 @@ t :: 'terms_' ::= {{com Terms }}
   | t T                                              ::   :: TApp
   | pack ( T1 , t ) T2                               ::   :: Pack  
   | let ( x , y r ) = t1 in t2                       ::   :: Unpack
-  | record { x1 = t1 , ... , xi = ti }               ::   :: Record
+  | record { x1 = t1 ; ... ; xi = ti ; }             ::   :: Record
   | t . x                                            ::   :: FieldSelection
   | let Mon ( x ) = t1 in t2                         ::   :: Bind
   | return t                                         ::   :: Return
@@ -223,8 +224,8 @@ by
   G |- Some (x : K) . B : Type
 
   G |- T1 : Type , ... , G |- Ti : Type
-  ---------------------------------------------- :: Record
-  G |- Record { x1 : T1 , ... , xi : Ti } : Type
+  ------------------------------------------------ :: Record
+  G |- Record { x1 : T1 ; ... ; xi : Ti ; } : Type
 
   G |- A : Type
   --------------------- :: Mon
@@ -297,9 +298,9 @@ by
 
   {y1 , ... , yn} subseteq {x1 , ... , xm}
   forall xi = yj, G |- Ai <= Bj
-  G |- Record {x1 : A1 , ..., xm : Am } : Type
-  ----------------------------------------------------------------- :: Record
-  G |- Record {x1 : A1,...,xm : Am} <= Record {y1 : B1,...,yn : Bn}
+  G |- Record {x1 : A1 ; ...; xm : Am; } : Type
+  ------------------------------------------------------------------- :: Record
+  G |- Record {x1 : A1;...;xm : Am;} <= Record {y1 : B1;...;yn : Bn;}
 
   G, x <= Top |- A <= B
   ------------------------------------------------- :: Fun
@@ -361,12 +362,12 @@ by
   G1+G2 |- let (x,y r) = t1 in t2 : T
 
   G1 |- t1 : A1 , ... , Gi |- ti : Ai
-  ---------------------------------------------------------------------------------- :: Record
-  G1 + ... + Gi |- record { x1 = t1 , ... , xi = ti } : Record {x1 : A1,...,xi : Ai} 
+  ------------------------------------------------------------------------------------ :: Record
+  G1 + ... + Gi |- record { x1 = t1 ; ... ; xi = ti; } : Record {x1 : A1;...;xi : Ai;} 
 
   1 <= i <= m
-  G |- t : Record {x1 : A1,...,xm : Am} 
-  ------------------------------------- :: Dot
+  G |- t : Record {x1 : A1;...;xm : Am;} 
+  -------------------------------------- :: Dot
   G |- t . xi : Ai
 
   G |- t : A
@@ -452,8 +453,8 @@ by
   G |- (function x : K1 { B }) A <:> [A/x]B : K2
 
   G |- A1 <:> B1 : Type , ... , G |- Am <:> Bm : Type
-  ------------------------------------------------------------------------- :: Record
-  G |- Record {x1 : A1,...,xm : Am} <:> Record {x1 : B1,...,xm : Bm} : Type
+  --------------------------------------------------------------------------- :: Record
+  G |- Record {x1 : A1;...;xm : Am;} <:> Record {x1 : B1;...;xm : Bm;} : Type
 
   G |- A <:> B : Type && s1 = s2
   ----------------------------------- :: Mon
@@ -537,17 +538,17 @@ G |- (function x : K { t1 }) t2 : B
 G |- (function x : K { t1 }) t2 <-> [t1/x]t2 : B
 
 G1 |- t1 <-> t'1 : A1 , ... , Gm |- tm <-> t'm : Am
-------------------------------------------------------------------------------------------------------------------- :: Record
-G1 + ... + Gm |- record {x1 = t1,...,xm = tm} <-> record {x1 = t'1,...,xm = t'm} : Record {x1 : A1 , ... , xm : Am}
+-------------------------------------------------------------------------------------------------------------------- :: Record
+G1 + ... + Gm |- record {x1 = t1;...;xm = tm;} <-> record {x1 = t'1;...;xm = t'm;} : Record {x1 : A1 ; ... ; xm : Am;}
 
 1 <= i <= m
-G |- t1 <-> t2 : Record {x1 : A1 , ... , xm : Am}
+G |- t1 <-> t2 : Record {x1 : A1 ; ... ; xm : Am;}
 ----------------------------------------------------------- :: Dot
-G |- t1 . xi <-> t2 . xi : Record {x1 : A1 , ... , xm : Am}
+G |- t1 . xi <-> t2 . xi : Record {x1 : A1 ; ... ; xm : Am;}
 
-G |- (record {x1 = t1, ..., xm = tm}).xi : Ai
----------------------------------------------------- :: RecordBeta
-G |- (record {x1 = t1, ..., xm = tm}).xi <-> ti : Ai
+G |- (record {x1 = t1; ...; xm = tm;}).xi : Ai
+----------------------------------------------------- :: RecordBeta
+G |- (record {x1 = t1; ...; xm = tm;}).xi <-> ti : Ai
 
 %% Add reduction for monads.
 
