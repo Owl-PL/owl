@@ -21,3 +21,17 @@ monoidal category.
     \]
 \end{definition}
 
+\begin{definition}
+    If the category of graded $\func{F}$-algebras has an initial object, then
+    we call this a \emph{graded initial} $\func{F}$-algebra denoted
+    by $(\mu\func{F}, \mathsf{in})$.  That is, for any other
+    $\func{F}$-algebra $(\func{A},h)$ there must be a unique morphism 
+    $\alpha : (\mu\func{F}, \mathsf{in}) \mto (\func{A},h)$, but this
+    implies that for any object $n$, $\alpha_n : \mu\func{F}(n) \mto
+    \func{A}(n)$ is unique and $\mu\func{F}(n)$ is an initial object
+    in $\cat{C}$.
+\end{definition}
+
+Lambek's Lemma guarantees that
+$\mathsf{in}_{m,n} : \func{F}(m,\mu\func{F}(n)) \mto \mu\func{F}(m *
+n)$ is an isomorphism.
