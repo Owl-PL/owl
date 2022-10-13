@@ -131,24 +131,98 @@ If $(\func{X},v)$ is a $\func{U}_{\func{F}}$-limit, then it is unique
 up to isomorphism.
 \end{lemma}
 \begin{proof}
-Suppose $(\func{Y},v')$ is another \ULimit{F}. Thus,
-there is a unique \UCone{F} morphism $i : \func{Y} \mto \func{X}$ such
-that $i;v = v'$. But, there must also be a unique \UCone{F} morphism $j :
-\func{X} \mto \func{Y}$ such that $j;v' = v$.  But, by substitution
-$i;j;v' = v'$ and $j;i;v = v$, but these in addition to the assumption
-that both $i$ and $j$ are unique imply that $i;j = \id_\func{Y}$ and
-$j;i = \id_\func{X}$, and thus $i$ and $j$ are inverses of each other. 
+Suppose $(\func{Y},v')$ is another \ULimit{F}. Thus, there is a unique
+\UCone{F} morphism $i : \func{Y} \mto \func{X}$ such that $i;v = v'$.
+But, there must also be a unique \UCone{F} morphism $j : \func{X} \mto
+\func{Y}$ such that $j;v' = v$.  But, by substitution $i;j;v' = v'$
+and $j;i;v = v$, but these in addition to the assumption that both $i$
+and $j$ are unique imply that $i;j = \id_\func{Y}$ and $j;i =
+\id_\func{X}$, and thus $i$ and $j$ are inverses of each other. 
 \end{proof}
 
 \subsection{Interpretation}
 \label{subsec:interpretation}
+\emph{The Non-graded Case.} We begin this section with an overview of
+the interpretation of non-graded GADTs.  Then show how to move to the
+graded case. The basic form of a GADT is the following:
+\begin{verbatim}
+data G f h a where
+    GCon :: f (G f h) a -> G f h (h a)
+\end{verbatim}
+Giving an initial algebra semantics requires that we interpret 
+\verb!G f h! as the carrier of the initial algebra in the category 
+of \verb!f!-algebras where the constructor \verb!GCon! is the 
+structure map.  That is, we have the following mappings:
 \begin{itemize}
-\item A data type is seen as the carrier of the initial algebra of a
-higher-order functor with type $(|\cat{C}| \to \cat{C}) \to |\cat{C}|
-\to \cat{C}$.
-\item Constructors have return types of the form $\func{G} (h\,a)$,
-but initial algebra semantics requires them to be of the form
-$\func{G}(a)$. To get an equivalent data type with constructors whose
-return types have this form we use left Kan extensions.
+    \item \verb!f! maps to a functor $\func{f} : [|\cat{C}|,\cat{C}]
+    \mto [|\cat{C}|, \cat{C}]$.
+
+    \item \verb!h! maps to a functor $\func{h} : |\cat{C}| \mto
+    |\cat{C}|$. 
+
+    \item \verb!G f h! maps to a functor 
+$\func{G}_{\func{f},\func{h}} : |\cat{C}| \mto \cat{C}$.
+
+    \item \verb!GCon! maps to a natural transformation:
+          \[
+            \mathsf{in} : \func{f}(\func{G}_{\func{f},\func{h}}(-)) \mto \func{G}_{\func{f},\func{h}}(\func{h}(-))
+          \]
 \end{itemize}
+At this point, we can see a problem, we want $(\func{G}_{\func{f},\func{h}},
+\mathsf{in})$ to be an initial $\func{f}$-algebra, but
+$\mathsf{in}$ has a target that does not fit the proper form, because
+it is currently $\func{G}_{\func{f},\func{h}}(\func{h}(-))$, and
+does not match the parameter to $\func{f}$ in the source, due to
+the application of $\func{h}$.  Thus, in its current form, $\func{in}$
+does not match the structure map we need.  Rather, we need it to have
+a target of $\func{G}_{\func{f},\func{h}}(-)$.
+
+We can over come this problem using the notion of a left Kan
+extension. 
+\newcommand{\Lan}[2]{\mathsf{Lan}_{#1}#2}
+\begin{definition}[Left Kan Extension]
+\label{def:left_kan_extension}
+The left Kan extension of a functor $\func{F} : \cat{C} \mto \cat{D}$
+along a functor $\func{P} : \cat{C} \mto \cat{C}'$ is, if it exists, a
+functor $\Lan{\func{P}}{\func{F}} : \cat{C'} \mto \func{D}$ equipped
+with a natural isomorphism:
+\[
+    \Hom{[\func{C},\func{D}]}{\func{F}}{\func{P}^*} \cong \Hom{[\cat{C}',\cat{D}]}{\Lan{\func{P}}{\func{F}}}{\func{id}}
+\]
+where $\func{P}^*(\func{H} : \cat{C}' \mto \cat{D}) = \func{P};\func{H}$.
+\end{definition}
+\noindent
+If we can define
+$\Lan{\func{h}}{\func{f}(\func{G}_{\func{f},\func{h}}(-))}$ and its
+associated natural isomorphism then we can simply apply the latter to
+$\mathsf{in}$ to obtain an isomorphic natural transformation that fits
+the form of the structure map we need. This is possible using the
+notion of a coend.
+\begin{definition}[Cowedge]
+\label{def:cowedge}
+Suppose $\func{F} : \opcat{C} \times \cat{C} \mto \cat{D}$ is a
+functor. A \emph{cowedge} $e : \cat{F} \mto w$ is an object $w$ and a
+family of maps $e_c : \func{F}(c,c) \mto w$ for each $c$, such that
+given any other morphism $f : c' \mto c$, the following holds:
+\[
+    \func{F}(f,f);e_{c'} = \func{F}(\id_{c'},f);e_{c}
+\]
+Cowedges are also perserved by composition, that is given a cowedge $e
+: F \mto w$ and a map $f : w \mto v$, then $e;f : v \mto F$ is a
+cowedge.
+\end{definition}
+
+\begin{definition}[Coend]
+\label{def:coend}
+Suppose $\func{F} : \opcat{C} \times \cat{C} \mto \cat{D}$ is a
+functor. A \emph{coend} of $\func{F}$ denoted 
+$\exists(c : \cat{C}).\func{F}(c,c)$ 
+is a universal cowedge $e : F \mto w$ where every other cowedge $e' :
+w' \mto \func{F}$ factors through $e$ via a unique map $w' \mto w$.
+\end{definition}
+
+\[
+\Lan{\func{h}}{\func{f}(\func{G}_{\func{f},\func{h}}(c))} =
+\exists(b : |\cat{C}|).|\cat{C}|(c,h(b)) \times \func{f}(\func{G}_{\func{f},\func{h}}(b))
+\]
 % subsection interpretation (end)

@@ -48,11 +48,11 @@ data Lan h g c = forall b.Lan (Eql (h b) c, g b)
 --
 -- is unfolded as 
 --
--- forall b.Lan (Eql (h b) c, (f G_{f, h}) b) -> G_{f, h}
+-- (forall b.Lan (Eql (h b) c, (f G_{f, h}) b)) -> G_{f, h}
 --
 -- But this is equivalent to the type:
 --
--- exist b.(((h b) = c, ((f G_{f, h}) b) -> G_{f, h})
+-- (exist b.((h b) = c, ((f G_{f, h}) b)) -> G_{f, h}
 --
 -- I can write this type down in Owl directly.
 
