@@ -217,12 +217,96 @@ cowedge.
 Suppose $\func{F} : \opcat{C} \times \cat{C} \mto \cat{D}$ is a
 functor. A \emph{coend} of $\func{F}$ denoted 
 $\exists(c : \cat{C}).\func{F}(c,c)$ 
-is a universal cowedge $e : F \mto w$ where every other cowedge $e' :
+is a universal cowedge $e : \func{F} \mto w$ where every other cowedge $e' :
 w' \mto \func{F}$ factors through $e$ via a unique map $w' \mto w$.
 \end{definition}
 
+\begin{definition}[Comma Category]
+\label{def:comma_category}
+Suppose we have functors $\func{F} : \cat{D} \mto \cat{C}$ and
+$\func{G} : \cat{E} \mto \cat{C}$.  Then the arrow category 
+$\func{F} \downarrow \func{G}$ consists of:
+\begin{itemize}
+\item Objects are triples 
+      $(d \in \cat{D}, e \in \cat{E}, 
+        f : \func{F}d \mto \func{G}e \in \cat{C})$.
+\item Morphisms $(d_1,e_1,f_1) \mto (d_2,e_2,f_2)$ are pairs 
+      $(h : d_1 \mto d_2,k : e_1 \mto e_2)$ such that the following holds:
+      \[
+           f_1;\func{G}k = \func{F}h;f_2
+      \]
+      There is are projection functor:
+      \begin{center}
+        \begin{math}
+            \begin{array}{lll}
+                \begin{array}{lll}
+                    \func{F} \downarrow \func{G} \mto^{\Pi_{\cat{D}}} \cat{D}\\
+                    \Pi(d,e,f) = d\\
+                    \Pi(h,k) = h
+               \end{array}
+               &
+               \begin{array}{lll}
+                    \func{F} \downarrow \func{G} \mto^{\Pi_{\cat{E}}} \cat{E}\\
+                    \Pi(d,e,f) = e\\
+                    \Pi(h,k) = k
+               \end{array}
+            \end{array}
+        \end{math}
+    \end{center}
+\end{itemize}
+\end{definition}
+\noindent
+We can instantiate the above with the functor $\func{h} : |\cat{C}|
+\mto |\cat{C}|$ and an object $c \in |\cat{C}|$ to obtain the
+category $\func{h} \downarrow c$:
+\begin{itemize}
+\item Objects are pairs $(b \in |\cat{C}|, \id_{b} : \func{h}(b)
+\mto b \in |\cat{C}|)$.
+
+\item Morphisms $(b_1,\id_{b_1}) \mto (b_2,\id_{b_2})$ are morphisms
+$f : b_1 \mto b_2 \in |\cat{C}|$, but this implies that $f = \id_{b_1}$.
+\end{itemize}
+In the objects above we write the identities as $\id_{b} :
+\func{h(b)} \mto c$ which can be written as the equation
+$\func{h}(b) = c$. Thus, we have a discrete category of all objects $b
+\in |\cat{C}|$ such that $\func{h}(b) = c$ which is a full subcategory
+of $|\cat{C}|$.
+
+Now if we take the first projection:
 \[
-\Lan{\func{h}}{\func{f}(\func{G}_{\func{f},\func{h}}(c))} =
-\exists(b : |\cat{C}|).|\cat{C}|(c,h(b)) \times \func{f}(\func{G}_{\func{f},\func{h}}(b))
+    \func{h} \downarrow c \mto^{\Pi_{|\cat{C}|}} |\cat{C}|
 \]
+we are projecting out the the object $b$ and forgetting the proof
+that $h(b) = c$.  Finally, we can compose this with
+$\func{f}(\func{G}_{\func{f},\func{h}}(-))$ as follows:
+\[
+    \func{h} \downarrow c \mto^{\Pi_{|\cat{C}|}} |\cat{C}| \mto^{\func{f}(\func{G}_{\func{f},\func{h}}(-))} \cat{C}
+\]
+Applying this functor to an object $(b, \func{h}(b) = c)$ yields an
+object $\func{f}(\func{G}_{\func{f},\func{h}}(b))$.  Now since we are
+dealing with a discrete category we can take the colimit of this
+functor to obtain the coproduct we denote as $\coprod_{b \in |\cat{C}|}(h(b) = c,\func{f}(\func{G}_{\func{f},\func{h}}(b)))$.
+
+\noindent
+Suppose we have an object $c$.  Then define the functor:
+\[
+    \begin{array}{lll}
+        \func{F} : |\cat{C}|^{\mathsf{op}} \times |\cat{C}| \mto \Set \times \cat{C}\\
+        \func{F}(b,b) = \Hom{|\cat{C}|}{c}{h(b)} \times \func{f}(\func{G}_{\func{f},\func{h}}(b))
+    \end{array}
+\]
+
+\[
+\begin{array}{lll}
+    \Lan{\func{h}}{\func{f}(\func{G}_{\func{f},\func{h}}(c))} 
+    & = \mathsf{colim}(\func{h}\downarrow c \mto^{\Pi^c} |\cat{C}| \mto^{\func{f}(\func{G}_{\func{f},\func{h}}(-))} \cat{C})\\    
+    & = \exists(b : |\cat{C}|).\Hom{|\cat{C}|}{c}{h(b))} \times \func{f}(\func{G}_{\func{f},\func{h}}(b))\\    
+\end{array}
+\]
+\[
+  \begin{array}{lll}
+    \func{f}(\func{G}_{\func{f},\func{h}}(-)) : |\cat{C}|^{\mathsf{op}} \mto \cat{C}\\
+    \func{f}(\func{G}_{\func{f},\func{h}}(b)) = \Hom{[|\cat{C}|^{\mathsf{op}},\cat{C}]}{\func{Point}_b}{\func{f}(\func{G}_{\func{f},\func{h}}(-))}
+  \end{array}  
+\]  
 % subsection interpretation (end)
