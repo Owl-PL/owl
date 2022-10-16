@@ -198,6 +198,17 @@ associated natural isomorphism then we can simply apply the latter to
 $\mathsf{in}$ to obtain an isomorphic natural transformation that fits
 the form of the structure map we need. This is possible using the
 notion of a coend.
+
+It is well-known left Kan extensions are equivalent to coends.
+Instantiated to our case, we know that our left Kan extension is equivalent to a coend:
+\[
+\begin{array}{lll}
+    \Lan{\func{h}}{\func{f}(\func{G}_{\func{f},\func{h}}(c))} 
+    \cong \exists(b : |\cat{C}|).\Hom{|\cat{C}|}{h(b))}{c} \times \func{f}(\func{G}_{\func{f},\func{h}}(b))\\    
+\end{array}
+\]
+for any $c \in |\cat{C}|$. Thus, to define our left Kan extension is to define the above coend.  
+
 \begin{definition}[Cowedge]
 \label{def:cowedge}
 Suppose $\func{F} : \opcat{C} \times \cat{C} \mto \cat{D}$ is a
@@ -218,8 +229,21 @@ Suppose $\func{F} : \opcat{C} \times \cat{C} \mto \cat{D}$ is a
 functor. A \emph{coend} of $\func{F}$ denoted 
 $\exists(c : \cat{C}).\func{F}(c,c)$ 
 is a universal cowedge $e : \func{F} \mto w$ where every other cowedge $e' :
-w' \mto \func{F}$ factors through $e$ via a unique map $w' \mto w$.
+\func{F} \mto w'$ factors through $e$ via a unique map $w \mto w'$.
 \end{definition}
+
+The functor we wish to take the coend of is:
+\[
+    \Hom{|\cat{C}|}{h(-))}{c} \times \func{f}(\func{G}_{\func{f},\func{h}}(-)) : |\cat{C}| \mto \Set \times \cat{C}
+\]
+for any object $c \in |\cat{C}|$.  Thus, we need to find an object $w
+\in |\cat{C}|$ and an universal cowedge $e : \Hom{|\cat{C}|}{h(-))}{c} \times \func{f}(\func{G}_{\func{f},\func{h}}(-)) \mto w$.
+As it turns out, what we essentially want $w$ to be is the disjoint
+union of $\Hom{|\cat{C}|}{h(b))}{c} \times
+\func{f}(\func{G}_{\func{f},\func{h}}(b))$ indexed by objects $b \in
+|\cat{C}|$.  In pure categorical terms, we want the indexed coproduct,
+and we can define this coproduct by taking the colimit of a particular
+functor projecting from the comma category.
 
 \begin{definition}[Comma Category]
 \label{def:comma_category}
@@ -261,7 +285,7 @@ We can instantiate the above with the functor $\func{h} : |\cat{C}|
 category $\func{h} \downarrow c$:
 \begin{itemize}
 \item Objects are pairs $(b \in |\cat{C}|, \id_{b} : \func{h}(b)
-\mto b \in |\cat{C}|)$.
+\mto c \in |\cat{C}|)$.
 
 \item Morphisms $(b_1,\id_{b_1}) \mto (b_2,\id_{b_2})$ are morphisms
 $f : b_1 \mto b_2 \in |\cat{C}|$, but this implies that $f = \id_{b_1}$.
@@ -285,28 +309,31 @@ $\func{f}(\func{G}_{\func{f},\func{h}}(-))$ as follows:
 Applying this functor to an object $(b, \func{h}(b) = c)$ yields an
 object $\func{f}(\func{G}_{\func{f},\func{h}}(b))$.  Now since we are
 dealing with a discrete category we can take the colimit of this
-functor to obtain the coproduct we denote as $\coprod_{b \in |\cat{C}|}(h(b) = c,\func{f}(\func{G}_{\func{f},\func{h}}(b)))$.
-
-\noindent
-Suppose we have an object $c$.  Then define the functor:
+functor to obtain the coproduct we denote as 
 \[
-    \begin{array}{lll}
-        \func{F} : |\cat{C}|^{\mathsf{op}} \times |\cat{C}| \mto \Set \times \cat{C}\\
-        \func{F}(b,b) = \Hom{|\cat{C}|}{c}{h(b)} \times \func{f}(\func{G}_{\func{f},\func{h}}(b))
-    \end{array}
+   \coprod_{(b,c = \func{h}(b)) \in \func{h} \downarrow c}(\func{f}(\func{G}_{\func{f},\func{h}}(b)))
 \]
-
+with injections:
 \[
-\begin{array}{lll}
-    \Lan{\func{h}}{\func{f}(\func{G}_{\func{f},\func{h}}(c))} 
-    & = \mathsf{colim}(\func{h}\downarrow c \mto^{\Pi^c} |\cat{C}| \mto^{\func{f}(\func{G}_{\func{f},\func{h}}(-))} \cat{C})\\    
-    & = \exists(b : |\cat{C}|).\Hom{|\cat{C}|}{c}{h(b))} \times \func{f}(\func{G}_{\func{f},\func{h}}(b))\\    
-\end{array}
+    \mathsf{inj}_b : \Hom{|\cat{C}|}{c}{\func{h}(b)} \times \func{f}(\func{G}_{\func{f},\func{h}}(b)) \mto \coprod_{(b,\func{h}(b) = c) \in \func{h} \downarrow c}(\func{f}(\func{G}_{\func{f},\func{h}}(b)))
 \]
+which can be written:
 \[
-  \begin{array}{lll}
-    \func{f}(\func{G}_{\func{f},\func{h}}(-)) : |\cat{C}|^{\mathsf{op}} \mto \cat{C}\\
-    \func{f}(\func{G}_{\func{f},\func{h}}(b)) = \Hom{[|\cat{C}|^{\mathsf{op}},\cat{C}]}{\func{Point}_b}{\func{f}(\func{G}_{\func{f},\func{h}}(-))}
-  \end{array}  
-\]  
+    \mathsf{inj}_{(b,h(b) = c)} : \func{f}(\func{G}_{\func{f},\func{h}}(b)) \mto \coprod_{(b,\func{h}(b) = c) \in \func{h} \downarrow c}(\func{f}(\func{G}_{\func{f},\func{h}}(b)))
+\]
+This coproduct is the object $w$ we require to define our cowedge for
+the coend:
+\[
+    \exists(b : |\cat{C}|).\Hom{|\cat{C}|}{h(b))}{c} \times \func{f}(\func{G}_{\func{f},\func{h}}(b))
+\]
+Then the universal cowedge is the object $\coprod_{(b,\func{h}(b) = c)
+\in \func{h} \downarrow c}(\func{f}(\func{G}_{\func{f},\func{h}}(b)))$
+and the family of maps:
+\[
+    e_b : \Hom{|\cat{C}|}{h(b))}{c} \times \func{f}(\func{G}_{\func{f},\func{h}}(b)) \mto 
+    \coprod_{(b,\func{h}(b) = c) \in \func{h} \downarrow c}(\func{f}(\func{G}_{\func{f},\func{h}}(b)))
+\]
+But, these are simply the injections of the coproduct.  So take, $e_b
+= \inj_{b}$.  The universal property of the cowedge then follows from
+the fact that $|\cat{C}|$ is discrete. 
 % subsection interpretation (end)
