@@ -25,6 +25,7 @@ FILES := $(OTT_FILES) \
 	 abstract.tex \
 	 $(TexFileName).tex \
 	 theory.tex \
+	 ggadts-syntax.tex \
 	 Makefile
 
 OTT_TARGETS := $(subst .tex,-ottput.tex,$(OTT_FILES))

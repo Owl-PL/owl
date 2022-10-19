@@ -142,9 +142,12 @@ and $j$ are unique imply that $i;j = \id_\func{Y}$ and $j;i =
 
 \subsection{Interpretation}
 \label{subsec:interpretation}
-\emph{The Non-graded Case.} We begin this section with an overview of
-the interpretation of non-graded GADTs.  Then show how to move to the
-graded case. The basic form of a GADT is the following:
+
+\subsubsection{The Non-Graded Case}
+\label{subsubsec:the_non_graded_case}
+We begin this section with an overview of the interpretation of
+non-graded GADTs.  Then show how to move to the graded case. The basic
+form of a GADT is the following:
 \begin{verbatim}
 data G f h a where
     GCon :: f (G f h) a -> G f h (h a)
@@ -330,10 +333,191 @@ Then the universal cowedge is the object $\coprod_{(b,\func{h}(b) = c)
 \in \func{h} \downarrow c}(\func{f}(\func{G}_{\func{f},\func{h}}(b)))$
 and the family of maps:
 \[
-    e_b : \Hom{|\cat{C}|}{h(b))}{c} \times \func{f}(\func{G}_{\func{f},\func{h}}(b)) \mto 
+    e_b : \Hom{|\cat{C}|}{h(b)}{c} \times \func{f}(\func{G}_{\func{f},\func{h}}(b)) \mto 
     \coprod_{(b,\func{h}(b) = c) \in \func{h} \downarrow c}(\func{f}(\func{G}_{\func{f},\func{h}}(b)))
 \]
 But, these are simply the injections of the coproduct.  So take, $e_b
 = \inj_{b}$.  The universal property of the cowedge then follows from
 the fact that $|\cat{C}|$ is discrete. 
+
+At this point a summary of our current results is in order. Recall
+that we wish to model the following basic GADT using initial algebra
+semantics:
+\begin{verbatim}
+    data G f h a where
+        GCon :: f (G f h) a -> G f h (h a)
+\end{verbatim}
+But, we ran into a problem because the form of the target type of
+$\verb!GCon!$ is not have the form $\verb!G f h b!$ because of the
+application of $\verb!h!$ and hence, $\verb!GCon!$ cannot be modeled
+as the structure map of the initial algebra of $\verb!f!$. We then
+learned how to calculate that the left Kan extension of
+$\func{f}(\func{G}_{\func{h},\func{f}}(-))$ using the coend and
+coproducts.  Now we can obtain an isomorphic version of $\verb!GCon!$
+using the following fact about Left Kan extensions and coends:
+\[
+    \begin{array}{lll}
+        \Hom{?}{\exists(b : |\cat{C}|).\Hom{|\cat{C}|}{h(b)}{a} \times \func{f}(\func{G}_{\func{f},\func{h}}(b))}{\func{G}_{\func{h},\func{f}}(a)}\\
+        \begin{array}{lll}
+            \cong &
+            \Hom{?}{\Lan{\func{h}}{\func{f}(\func{G}_{\func{f},\func{h}}(a))}}{\func{G}_{\func{h},\func{f}}(a)}\\
+            \cong &
+            \Hom{?}{\func{f}(\func{G}_{\func{h},\func{f}}(a))}{\func{G}_{\func{h},\func{f}}(\func{h}(a))}
+        \end{array}
+    \end{array}
+\]
+However, we still have a problem here.  The form of the source object
+in the definition of $\mathsf{in}$ does not fit the form of a
+structure map:
+\[
+    \mathsf{in}_c : 
+    \exists(b : |\cat{C}|).\Hom{|\cat{C}|}{h(b))}{c} \times \func{f}(\func{G}_{\func{f},\func{h}}(b))
+    \mto\func{f}(\func{G}_{\func{f},\func{h}}(c)
+\]
+This can be fixed by defining the following functor:
+\[
+    \begin{array}{lll}
+        \func{K}_{\func{f},\func{h}} : [|\cat{C}|,\cat{C}] \mto [|\cat{C}|,\cat{C}]\\
+        \func{K}_{\func{f},\func{h}}(\func{g},c) = \exists(b : |\cat{C}|).\Hom{|\cat{C}|}{h(b)}{c} \times \func{f}(c,\func{g}(b))
+    \end{array}
+\]
+Using this functor we can see that $\mathsf{in}$ is equivalent to:
+\[
+    \mathsf{in}_{c} : 
+    \func{K}_{\func{f},\func{h}}(\func{G}_{\func{f},\func{h}}(c)) 
+    \mto 
+    \func{G}_{\func{f},\func{h}}(c)
+\]
+Thus, $(\func{G}_{\func{f},\func{h}})$ is an initial $\func{K}_{\func{f},\func{h}}$-algebra.
+
+Since coends correspond to existential quantifiers we can redefine our
+GADT as follows:
+\begin{verbatim}
+    data G f h a where
+        GCon :: exists b.(Eql (h b) a, f (G f h) b) -> G f h a
+\end{verbatim}
+This version of our basic GADT can now be interpreted using initial
+algebra semantics as follows:
+\begin{itemize}
+    \item \verb!h! maps to a functor $\func{h} : |\cat{C}| \mto
+    |\cat{C}|$. 
+
+    \item \verb!f! maps to the functor $\func{K}_{\func{f},\func{h}} : [|\cat{C}|,\cat{C}]
+    \mto [|\cat{C}|, \cat{C}]$.    
+
+    \item \verb!G f h! maps to a functor 
+          $\func{G}_{\func{f},\func{h}} : |\cat{C}| \mto \cat{C}$.
+
+    \item \verb!GCon! maps to the natural transformation:
+          \[
+            \mathsf{in} : 
+            \func{K}_{\func{f},\func{h}}(\func{G}_{\func{f},\func{h}}(c))
+            \mto 
+            \func{G}_{\func{f},\func{h}}(-)
+          \]
+          making $(\func{G}_{\func{h},\func{f}},\mathsf{in})$ an
+          initial $\func{K}_{\func{f},\func{h}}$-algebra.
+\end{itemize}
+We can generalize this semantics to the graded case.
+% subsubsection the_non_graded_case (end)
+
+\subsubsection{The Graded Case}
+\label{subsubsec:the_graded_case}
+Consider the case of graded GADTs. Using graded initial algebras we
+want the semantics to correspond to:
+\begin{itemize}
+    \item \verb!f! maps to a functor 
+    $\func{f} : \cat{E} \times [|\cat{C}|,\cat{C}] \mto [|\cat{C}|, \cat{C}]$.
+
+    \item \verb!h! maps to a functor 
+    $\func{h} : |\cat{C}| \mto |\cat{C}|$. 
+
+    \item \verb!G f h! maps to a functor 
+          $\func{G}_{\func{f},\func{h}} : \cat{E} \mto [|\cat{C}|,\cat{C}]$.
+
+    \item \verb!GCon! maps to a natural transformation:
+          \[
+            \mathsf{in}_{m,n} : \func{f}(m,\func{G}_{\func{f},\func{h}}(n,b)) \mto \func{G}_{\func{f},\func{h}}(m \otimes n,\func{h}(b))
+          \]
+          making $(\func{G}_{\func{h},\func{f}},\mathsf{in})$ a graded
+          initial $\func{f}$-algebra.
+\end{itemize}
+\noindent But, we have the same problem as before where the target of
+$\mathsf{in}_{m,n}$ would have an application of $\func{h}$, but this
+application does not appear in the source of $\func{in}$.  Just as
+before, we make use of the left Kan extension to fix this problem, and
+hence, equivalently a coend that is computed by a coproduct.
+
+In the graded setting, the functor we want to take the left Kan
+extension of is:
+\[
+    \func{f}(m,\func{G}_{\func{f},\func{h}}(n,-)) : |\cat{C}| \mto \cat{C}
+\]
+for any grades $m$ and $n$. Now the left Kan extension is equivalent to the following coend:
+\[
+\begin{array}{lll}
+    (\Lan{\func{h}}{\func{f}(m)\func{G}_{\func{f},\func{h}}(n,-)})(c) 
+    \cong 
+    \exists(b : |\cat{C}|).\Hom{|\cat{C}|}{h(b)}{c} \times \func{f}(m,\func{G}_{\func{f},\func{h}}(n,b))
+\end{array}
+\]
+for every grade $m$ and $n$.  In fact, constructing this coend is the
+same as constructing the coend for the non-graded case. 
+The the universal cowedge is the object $\coprod_{(b,\func{h}(b) = c)
+\in \func{h} \downarrow c}(\func{f}(m,\func{G}_{\func{f},\func{h}}(n,b)))$
+and the family of maps:
+\[
+    e_{m,n,b} : \Hom{|\cat{C}|}{h(b)}{c} \times \func{f}(m,\func{G}_{\func{f},\func{h}}(n,b)) \mto 
+    \coprod_{(b,\func{h}(b) = c) \in \func{h} \downarrow c}(\func{f}(m,\func{G}_{\func{f},\func{h}}(n,b)))
+\]
+which are again injections into the coproduct.  
+
+However, we want our structure map in the $\func{f}$-algebra
+$(\func{G}_{\func{f},\func{h}},\mathsf{in})$ to be the following:
+\[
+    \mathsf{in}_{m,n} : 
+    \exists(b : |\cat{C}|).\Hom{|\cat{C}|}{h(b)}{c} \times \func{f}(m,\func{G}_{\func{f},\func{h}}(n,b))
+    \mto 
+    \func{G}_{\func{f},\func{h}}(m \otimes n)
+\]
+But, the coend in the structure of the source object does not match
+the structure required for the structure map of a graded
+$\func{f}$-algebra.  We can fix this problem by defining the following
+functor:
+\[
+    \begin{array}{lll}
+        \func{K}_{\func{f},\func{h}} : \cat{E} \times [|\cat{C}|,\cat{C}] \mto [|\cat{C}|,\cat{C}]\\
+        \func{K}_{\func{f},\func{h}}(m,\func{g}) = \exists(b : |\cat{C}|).\Hom{|\cat{C}|}{h(b)}{-} \times \func{f}(m,\func{g}(b))
+    \end{array}
+\]
+Using this functor we can see that $\mathsf{in}$ is equivalent to:
+\[
+    \mathsf{in}_{m,n} : \func{K}_{\func{f},\func{h}}(m,\func{G}_{\func{f},\func{h}}(n)) \mto \func{G}_{\func{f},\func{h}}(m \otimes n)
+\]
+Thus, we now have the following interpretation:
+\begin{itemize}
+    \item \verb!h! maps to a functor 
+    $\func{h} : |\cat{C}| \mto |\cat{C}|$. 
+
+    \item \verb!f! maps to the functor 
+    $\func{K}_{\func{f},\func{h}} : \cat{E} \times [|\cat{C}|,\cat{C}] \mto [|\cat{C}|, \cat{C}]$.    
+
+    \item \verb!G f h! maps to a functor 
+          $\func{G}_{\func{f},\func{h}} : \cat{E} \mto [|\cat{C}|,\cat{C}]$.
+
+    \item \verb!GCon! maps to the natural transformation:
+          \[
+            \mathsf{in}_{m,n} : \func{K}_{\func{f},\func{h}}(m,\func{G}_{\func{f},\func{h}}(n)) \mto \func{G}_{\func{f},\func{h}}(m \otimes n)
+          \]
+          making $(\func{G}_{\func{h},\func{f}},\mathsf{in})$ a graded
+          initial $\func{K}_{\func{h},\func{f}}$-algebra.
+\end{itemize}
+This shows that graded GADTs correspond to graded initial algebras
+that can be computed using coproducts and the existential quantifier.
+% subsubsection the_graded_case (end)
 % subsection interpretation (end)
+
+\subsection{Initial Algebra Packages for Basic Graded GADTs}
+\label{subsec:initial_algebra_packages_for_basic_ggadts}
+
+% subsection initial_algebra_packages_for_basic_gadts (end)
