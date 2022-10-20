@@ -519,5 +519,50 @@ that can be computed using coproducts and the existential quantifier.
 
 \subsection{Initial Algebra Packages for Basic Graded GADTs}
 \label{subsec:initial_algebra_packages_for_basic_ggadts}
+Throughout this section we assume $(\mu\func{K},\mathsf{in})$ is the
+initial graded $\func{K}$-algebra.
 
+\subsubsection{Graded Folds and Fold Fusion}
+\label{subsubsec:graded_folds}
+Suppose $(\func{G},h)$ is a graded $\func{K}$-algebra. Then the graded fold is the morphism:
+\[
+\mathsf{fold} : [\func{K} (m,\func{G}(n)),\func{G}(m \otimes n)] \mto [\mu\func{K},\func{G}]
+\]
+such that $\mathsf{fold}(h) : \mu\func{K} \mto \func{G}$ is an algebra
+homomorphism.  This implies that the following diagram commutes:
+\[
+     \bfig
+         \square(0,0)|amma|/->`->`->`->/<1700,500>[
+            \func{K}(m,\mu\func{K}(n))`
+            \func{K}(m,\func{G}(n))`
+             \mu\func{K}(m \otimes n)`
+             \func{G}(m \otimes n);
+             \func{K}(\id_m,\mathsf{fold}(h,n))`
+             \mathsf{in}_{m,n}`
+             h`
+             \mathsf{fold}(h,m \otimes n)
+         ]
+     \efig
+\]
+
+In addition, since $\mathsf{fold}(h) : \mu\func{K} \mto \func{G}$ is a
+map from the initial graded $\func{K}$-algebra to $(\func{G},h)$ we
+know it must be unique by initiality. This is the basis for fold
+fusion which says that given a graded $\func{K}$-algebra homomorphism
+$\psi : (\func{G},h) \mto (\func{G'},h')$ the following diagram commutes:
+\[
+     \bfig
+         \Atriangle(0,0)|mmm|/<-`->`->/<500,500>[
+             \func{G}`
+             \mu\func{K}`
+             \func{G'};
+             \mathsf{fold}(h)`
+             \psi`
+             \mathsf{fold}(h')
+         ]
+     \efig
+\]
+But, this easily follows from the uniqueness of $\mathsf{fold}(h)$ and
+$\mathsf{fold}(h')$.
+% subsubsection graded_folds (end)
 % subsection initial_algebra_packages_for_basic_gadts (end)
