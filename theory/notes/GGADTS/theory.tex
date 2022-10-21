@@ -413,45 +413,40 @@ initial graded $\func{K}$-algebra.
 
 \subsubsection{Graded Folds and Fold Fusion}
 \label{subsubsec:graded_folds}
-Suppose $(\func{G},h)$ is a graded $\func{K}$-algebra. Then the graded
-fold is the morphism:
-
+Every graded GADT has an assocated graded fold combinator associated
+with it.
+% 
 \begin{definition}[Graded Folds]
     \label{def:graded_folds}
-    Suppose $(\mu\func{F},\mathsf{in})$ is a graded initial
-    $\func{F}$-algebra. Then the unquie map between $\mu\func{F}$ and any
-    other graded $\func{F}$-algebra $(\func{A},h)$ is the \emph{fold} for
-    $\mu\func{F}$ and is denoted by 
+    The unquie map between $\mu\func{K}$ and any other graded 
+    $\func{K}$-algebra $(\func{G},h)$ is the \emph{fold} for
+    $\mu\func{K}$ and is denoted by 
     \[
-        \mathsf{fold}(h) : \mu\func{F} \mto \func{A}
+        \mathsf{fold} : 
+            [\func{K} (m,\func{G}(n)),\func{G}(m \otimes n)] 
+            \mto 
+            [\mu\func{K},\func{G}]        
     \]  
     Furthermore, we know that the following must hold:
     \[
-    \mathsf{in}_{m,n};\mathsf{fold}(h)_{m * n} = \func{F}(m,\mathsf{fold}(h)_n);h
-    \]
+        \bfig
+            \square(0,0)|amma|/->`->`->`->/<1700,500>[
+               \func{K}(m,\mu\func{K}(n))`
+               \func{K}(m,\func{G}(n))`
+                \mu\func{K}(m \otimes n)`
+                \func{G}(m \otimes n);
+                \func{K}(\id_m,\mathsf{fold}(h,n))`
+                \mathsf{in}_{m,n}`
+                h`
+                \mathsf{fold}(h,m \otimes n)
+            ]
+        \efig
+   \]    
+   Thus, $\mathsf{fold}(h) : \mu\func{K} \mto \func{G}$ is a graded
+   $\func{K}$-algebra homomorphism.
 \end{definition}
-
-\[
-\mathsf{fold} : [\func{K} (m,\func{G}(n)),\func{G}(m \otimes n)] \mto [\mu\func{K},\func{G}]
-\]
-such that $\mathsf{fold}(h) : \mu\func{K} \mto \func{G}$ is an algebra
-homomorphism.  This implies that the following diagram commutes:
-\[
-     \bfig
-         \square(0,0)|amma|/->`->`->`->/<1700,500>[
-            \func{K}(m,\mu\func{K}(n))`
-            \func{K}(m,\func{G}(n))`
-             \mu\func{K}(m \otimes n)`
-             \func{G}(m \otimes n);
-             \func{K}(\id_m,\mathsf{fold}(h,n))`
-             \mathsf{in}_{m,n}`
-             h`
-             \mathsf{fold}(h,m \otimes n)
-         ]
-     \efig
-\]
-
-In addition, since $\mathsf{fold}(h) : \mu\func{K} \mto \func{G}$ is a
+\noindent
+Since $\mathsf{fold}(h) : \mu\func{K} \mto \func{G}$ is a
 map from the initial graded $\func{K}$-algebra to $(\func{G},h)$ we
 know it must be unique by initiality. This is the basis for fold
 fusion which says that given a graded $\func{K}$-algebra homomorphism
