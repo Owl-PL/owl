@@ -1,150 +1,5 @@
-Suppose $\cat{C}$ is a category and $(\cat{E},\otimes,I)$ is a strict
-monoidal category.
-
-\begin{definition}[Graded $\func{F}$-Algebra]
-    For a functor $\func{F} : \cat{E} \times \cat{C} \mto \cat{C}$, a
-    graded $\func{F}$-algebra is a pair $(\func{A},h)$ that consists
-    of a functor $\func{A} : \cat{E} \mto \cat{C}$ and a family $h$ of
-    morphisms:
-    \[ 
-        h_{m,n} : \func{F}(m,\func{A}(n)) \mto \func{A}(m \otimes n)
-    \]
-    A \emph{homomorphism} between two graded $\func{F}$-algebras
-    $(\func{A},h)$ and $(\func{B},h')$ consists of a morphism
-    \[
-        \alpha : (\func{A},h) \mto (\func{B},h')
-    \]
-    is defined as a natural transformation $\alpha : \func{A}_1 \mto
-    \func{A}_2$ such that:
-    \[
-        \func{F(m,\alpha_n)} ; h'_{m,n} = h_{m,n} ; \alpha_{m \otimes n}
-    \]
-\end{definition}
-
-\begin{definition}
-    If the category of graded $\func{F}$-algebras has an initial object, then
-    we call this a \emph{graded initial} $\func{F}$-algebra denoted
-    by $(\mu\func{F}, \mathsf{in})$.  That is, for any other
-    $\func{F}$-algebra $(\func{A},h)$ there must be a unique morphism 
-    $\alpha : (\mu\func{F}, \mathsf{in}) \mto (\func{A},h)$, but this
-    implies that for any object $n$, $\alpha_n : \mu\func{F}(n) \mto
-    \func{A}(n)$ is unique and $\mu\func{F}(n)$ is an initial object
-    in $\cat{C}$.
-\end{definition}
-
-\begin{lemma}[From Structures to Homomorphisms]
-\label{lemma:from_structures_to_homomorphisms}
-Given any graded $\func{F}$-algebra $(\func{A},h)$, the structure map
-$h$ is also a homomorphism between $\func{F}$-algebras
-$(\func{F}(m,A(-)),\func{F}(-,h_{m,-}))$ and $(\func{A}(m \otimes -)),h_{-, m \otimes -})$.
-\end{lemma}
-\begin{proof}
-This proof holds trivially by writing out the commutative square for
-the $\func{F}$-algebra homomorphism.
-\end{proof}
-
-\begin{lemma}[Graded Lambek's Lemma]
-\label{lemma:graded_lambeks_lemma}
-If $(\func{A},h)$ is a graded initial algebra of $\func{F}$, 
-then for any object $m$, 
-$\func{A}(m \otimes -) : \cat{E} \mto \cat{C}$ is isomorphic to 
-$\func{F}(m, A(-)) : \cat{E} \mto \cat{C}$ via $h_m$.
-\end{lemma}
-\begin{proof}
-Suppose $h_{m,n} : \func{F}(m,A(n)) \mto \func{A}(m \otimes n)$ is an initial
-algebra structure for any $m$ and $n$.  
-Now define an algebra structure:
-\[
-\func{F}(m',h_{m,n}) : \func{F}(m',\func{F}(m,A(n))) \mto \func{F}(m',\func{A}(m \otimes n))
-\]
-Then by initiality there exists an $\func{F}$-algebra homomorphism 
-$$i_{m} : \func{A}(m \otimes -) \mto \func{F}(m,\func{A}(-))$$ such that:
-$$\func{F(m',i_{m,n})} ; \func{F}(m',h_{m,n}) = h_{m',(m \otimes n)} ;
-i_{m',(m \otimes n)}$$
-We also know that $h_{m} : \func{F}(m,A(-)) \mto \func{A}(m \otimes -)$ is
-itself a graded $\func{F}$-algebra homomorphism
-(Lemma~\ref{lemma:from_structures_to_homomorphisms}). Thus, since we
-know that $\func{A}(m \otimes n)$ is an initial object by definition and
-assumption that $\func{A}$ is a graded initial object, and hence, 
-$i_{m,n}; h_{m,n} = \id_{m \otimes n}$.  
-
-Next we know that $i$ is a graded $\func{F}$-algebra homomorphism which
-implies $$\func{F}(m,i_{n,I});\func{F}(m,h_{n,I}) =
-h_{m,n};i_{m,n}$$ but again by initiality we know that
-$$\func{F}(m,i_{n,I});\func{F}(m,h_{n,I}) =
-\id_{\func{F}(m,\func{A}(n))}$$
-Therefore, $i$ is the inverse of $h$ and we obtain our result.
-\end{proof}
-
-\begin{definition}[Graded Folds]
-\label{def:graded_folds}
-Suppose $(\mu\func{F},\mathsf{in})$ is a graded initial
-$\func{F}$-algebra. Then the unquie map between $\mu\func{F}$ and any
-other graded $\func{F}$-algebra $(\func{A},h)$ is the \emph{fold} for
-$\mu\func{F}$ and is denoted by 
-\[
-    \mathsf{fold}(h) : \mu\func{F} \mto \func{A}
-\]  
-Furthermore, we know that the following must hold:
-\[
-\mathsf{in}_{m,n};\mathsf{fold}(h)_{m * n} = \func{F}(m,\mathsf{fold}(h)_n);h
-\]
-\end{definition}
-
-\begin{definition}[Graded Forgetful Limits]
-\label{def:forgetful_limits}
-There is a forgetful functor from the category of graded
-$\func{F}$-algebras and the functor category $[\cat{E},\cat{C}]$ and
-their natural transformations. This functor is defined as follows:
-\[
-    \begin{array}{lll}
-        \func{U}_\func{F}(\func{A},h) = \func{A}\\
-        \func{U}_\func{F}(\alpha) = \alpha
-    \end{array}
-\]
-Given an object of $[\cat{E},\cat{C}]$, say $\func{X}$, then a
-\emph{$\func{U}_\func{F}$-cone for $X$} comprises, for every graded
-$\func{F}$-albebra $(\func{A},h)$, a natural transformation 
-$v_{(\func{A},h)} : \func{X} \mto \func{A}$ in $[\cat{E},\cat{C}]$
-such that, for every graded $\func{F}$-algebra homomorphism $\alpha :
-\func{A} \mto \func{B}$, we have $v_{(\func{B},g)} = \alpha;v_{(\func{A},h)}
-$.  We denote these cones by $(\func{X},v)$ and call $\func{X}$ its
-\emph{vertex} and $v_{(A,h)}$ the \emph{projection} from $\func{X}$ to
-$\func{A}$. 
-
-A \emph{$\func{U}_\func{F}$-cone morphism} $g : (\func{X},v_1) \mto
-(\func{Y},v_2)$ is a natural transformation $g : \func{X} \mto
-\func{Y}$ such that for any graded $\func{F}$-algebra $(A,h)$, we have
-$g;v_2 = v_1$. A \emph{$\func{U}_\func{F}$-limit} is a
-$\func{U}_\func{F}$-cone to which there is a unique
-$\func{U}_\func{F}$-cone morphism, call the \emph{mediating morphism},
-from any other $\func{U}_\func{F}$-cone.
-\end{definition}
-
-\newcommand{\UFunc}[1]{\func{U}_{\func{#1}}}
-\newcommand{\UCone}[1]{$\UFunc{#1}$-cone}
-\newcommand{\ULimit}[1]{$\UFunc{#1}$-limit}
-
-\begin{lemma}[Forgetful Limits are Unique]
-\label{lemma:forgetful_limits_are_unique}
-If $(\func{X},v)$ is a $\func{U}_{\func{F}}$-limit, then it is unique
-up to isomorphism.
-\end{lemma}
-\begin{proof}
-Suppose $(\func{Y},v')$ is another \ULimit{F}. Thus, there is a unique
-\UCone{F} morphism $i : \func{Y} \mto \func{X}$ such that $i;v = v'$.
-But, there must also be a unique \UCone{F} morphism $j : \func{X} \mto
-\func{Y}$ such that $j;v' = v$.  But, by substitution $i;j;v' = v'$
-and $j;i;v = v$, but these in addition to the assumption that both $i$
-and $j$ are unique imply that $i;j = \id_\func{Y}$ and $j;i =
-\id_\func{X}$, and thus $i$ and $j$ are inverses of each other. 
-\end{proof}
-
-\subsection{Interpretation}
-\label{subsec:interpretation}
-
-\subsubsection{The Non-Graded Case}
-\label{subsubsec:the_non_graded_case}
+\subsection{The Non-Graded Case}
+\label{subsec:the_non_graded_case}
 We begin this section with an overview of the interpretation of
 non-graded GADTs.  Then show how to move to the graded case. The basic
 form of a GADT is the following:
@@ -419,10 +274,45 @@ algebra semantics as follows:
           initial $\func{K}_{\func{f},\func{h}}$-algebra.
 \end{itemize}
 We can generalize this semantics to the graded case.
-% subsubsection the_non_graded_case (end)
+% subsection the_non_graded_case (end)
 
-\subsubsection{The Graded Case}
-\label{subsubsec:the_graded_case}
+\subsection{The Graded Case}
+\label{subsec:the_graded_case}
+
+Suppose $\cat{C}$ is a category and $(\cat{E},\otimes,I)$ is a strict
+monoidal category.
+
+\begin{definition}[Graded $\func{F}$-Algebra]
+    For a functor $\func{F} : \cat{E} \times \cat{C} \mto \cat{C}$, a
+    graded $\func{F}$-algebra is a pair $(\func{A},h)$ that consists
+    of a functor $\func{A} : \cat{E} \mto \cat{C}$ and a family $h$ of
+    morphisms:
+    \[ 
+        h_{m,n} : \func{F}(m,\func{A}(n)) \mto \func{A}(m \otimes n)
+    \]
+    A \emph{homomorphism} between two graded $\func{F}$-algebras
+    $(\func{A},h)$ and $(\func{B},h')$ consists of a morphism
+    \[
+        \alpha : (\func{A},h) \mto (\func{B},h')
+    \]
+    is defined as a natural transformation $\alpha : \func{A}_1 \mto
+    \func{A}_2$ such that:
+    \[
+        \func{F(m,\alpha_n)} ; h'_{m,n} = h_{m,n} ; \alpha_{m \otimes n}
+    \]
+\end{definition}
+
+\begin{definition}
+    If the category of graded $\func{F}$-algebras has an initial object, then
+    we call this a \emph{graded initial} $\func{F}$-algebra denoted
+    by $(\mu\func{F}, \mathsf{in})$.  That is, for any other
+    $\func{F}$-algebra $(\func{A},h)$ there must be a unique morphism 
+    $\alpha : (\mu\func{F}, \mathsf{in}) \mto (\func{A},h)$, but this
+    implies that for any object $n$, $\alpha_n : \mu\func{F}(n) \mto
+    \func{A}(n)$ is unique and $\mu\func{F}(n)$ is an initial object
+    in $\cat{C}$.
+\end{definition}
+
 Consider the case of graded GADTs. Using graded initial algebras we
 want the semantics to correspond to:
 \begin{itemize}
@@ -514,8 +404,7 @@ Thus, we now have the following interpretation:
 \end{itemize}
 This shows that graded GADTs correspond to graded initial algebras
 that can be computed using coproducts and the existential quantifier.
-% subsubsection the_graded_case (end)
-% subsection interpretation (end)
+% section the_graded_case (end)
 
 \subsection{Initial Algebra Packages for Basic Graded GADTs}
 \label{subsec:initial_algebra_packages_for_basic_ggadts}
@@ -524,7 +413,24 @@ initial graded $\func{K}$-algebra.
 
 \subsubsection{Graded Folds and Fold Fusion}
 \label{subsubsec:graded_folds}
-Suppose $(\func{G},h)$ is a graded $\func{K}$-algebra. Then the graded fold is the morphism:
+Suppose $(\func{G},h)$ is a graded $\func{K}$-algebra. Then the graded
+fold is the morphism:
+
+\begin{definition}[Graded Folds]
+    \label{def:graded_folds}
+    Suppose $(\mu\func{F},\mathsf{in})$ is a graded initial
+    $\func{F}$-algebra. Then the unquie map between $\mu\func{F}$ and any
+    other graded $\func{F}$-algebra $(\func{A},h)$ is the \emph{fold} for
+    $\mu\func{F}$ and is denoted by 
+    \[
+        \mathsf{fold}(h) : \mu\func{F} \mto \func{A}
+    \]  
+    Furthermore, we know that the following must hold:
+    \[
+    \mathsf{in}_{m,n};\mathsf{fold}(h)_{m * n} = \func{F}(m,\mathsf{fold}(h)_n);h
+    \]
+\end{definition}
+
 \[
 \mathsf{fold} : [\func{K} (m,\func{G}(n)),\func{G}(m \otimes n)] \mto [\mu\func{K},\func{G}]
 \]
@@ -563,6 +469,103 @@ $\psi : (\func{G},h) \mto (\func{G'},h')$ the following diagram commutes:
      \efig
 \]
 But, this easily follows from the uniqueness of $\mathsf{fold}(h)$ and
-$\mathsf{fold}(h')$.
+$\mathsf{fold}(h')$.  
 % subsubsection graded_folds (end)
-% subsection initial_algebra_packages_for_basic_gadts (end)
+
+\subsubsection{Graded Fold/Build Fusion Rules}
+\label{subsubsec:graded_fold_build_fusion_rules}
+\begin{lemma}[From Structures to Homomorphisms]
+    \label{lemma:from_structures_to_homomorphisms}
+    Given any graded $\func{F}$-algebra $(\func{A},h)$, the structure map
+    $h$ is also a homomorphism between $\func{F}$-algebras
+    $(\func{F}(m,A(-)),\func{F}(-,h_{m,-}))$ and $(\func{A}(m \otimes -)),h_{-, m \otimes -})$.
+    \end{lemma}
+    \begin{proof}
+    This proof holds trivially by writing out the commutative square for
+    the $\func{F}$-algebra homomorphism.
+    \end{proof}
+    
+    \begin{lemma}[Graded Lambek's Lemma]
+    \label{lemma:graded_lambeks_lemma}
+    If $(\func{A},h)$ is a graded initial algebra of $\func{F}$, 
+    then for any object $m$, 
+    $\func{A}(m \otimes -) : \cat{E} \mto \cat{C}$ is isomorphic to 
+    $\func{F}(m, A(-)) : \cat{E} \mto \cat{C}$ via $h_m$.
+    \end{lemma}
+    \begin{proof}
+    Suppose $h_{m,n} : \func{F}(m,A(n)) \mto \func{A}(m \otimes n)$ is an initial
+    algebra structure for any $m$ and $n$.  
+    Now define an algebra structure:
+    \[
+    \func{F}(m',h_{m,n}) : \func{F}(m',\func{F}(m,A(n))) \mto \func{F}(m',\func{A}(m \otimes n))
+    \]
+    Then by initiality there exists an $\func{F}$-algebra homomorphism 
+    $$i_{m} : \func{A}(m \otimes -) \mto \func{F}(m,\func{A}(-))$$ such that:
+    $$\func{F(m',i_{m,n})} ; \func{F}(m',h_{m,n}) = h_{m',(m \otimes n)} ;
+    i_{m',(m \otimes n)}$$
+    We also know that $h_{m} : \func{F}(m,A(-)) \mto \func{A}(m \otimes -)$ is
+    itself a graded $\func{F}$-algebra homomorphism
+    (Lemma~\ref{lemma:from_structures_to_homomorphisms}). Thus, since we
+    know that $\func{A}(m \otimes n)$ is an initial object by definition and
+    assumption that $\func{A}$ is a graded initial object, and hence, 
+    $i_{m,n}; h_{m,n} = \id_{m \otimes n}$.  
+    
+    Next we know that $i$ is a graded $\func{F}$-algebra homomorphism which
+    implies $$\func{F}(m,i_{n,I});\func{F}(m,h_{n,I}) =
+    h_{m,n};i_{m,n}$$ but again by initiality we know that
+    $$\func{F}(m,i_{n,I});\func{F}(m,h_{n,I}) =
+    \id_{\func{F}(m,\func{A}(n))}$$
+    Therefore, $i$ is the inverse of $h$ and we obtain our result.
+    \end{proof}
+    
+    \begin{definition}[Graded Forgetful Limits]
+    \label{def:forgetful_limits}
+    There is a forgetful functor from the category of graded
+    $\func{F}$-algebras and the functor category $[\cat{E},\cat{C}]$ and
+    their natural transformations. This functor is defined as follows:
+    \[
+        \begin{array}{lll}
+            \func{U}_\func{F}(\func{A},h) = \func{A}\\
+            \func{U}_\func{F}(\alpha) = \alpha
+        \end{array}
+    \]
+    Given an object of $[\cat{E},\cat{C}]$, say $\func{X}$, then a
+    \emph{$\func{U}_\func{F}$-cone for $X$} comprises, for every graded
+    $\func{F}$-albebra $(\func{A},h)$, a natural transformation 
+    $v_{(\func{A},h)} : \func{X} \mto \func{A}$ in $[\cat{E},\cat{C}]$
+    such that, for every graded $\func{F}$-algebra homomorphism $\alpha :
+    \func{A} \mto \func{B}$, we have $v_{(\func{B},g)} = \alpha;v_{(\func{A},h)}
+    $.  We denote these cones by $(\func{X},v)$ and call $\func{X}$ its
+    \emph{vertex} and $v_{(A,h)}$ the \emph{projection} from $\func{X}$ to
+    $\func{A}$. 
+    
+    A \emph{$\func{U}_\func{F}$-cone morphism} $g : (\func{X},v_1) \mto
+    (\func{Y},v_2)$ is a natural transformation $g : \func{X} \mto
+    \func{Y}$ such that for any graded $\func{F}$-algebra $(A,h)$, we have
+    $g;v_2 = v_1$. A \emph{$\func{U}_\func{F}$-limit} is a
+    $\func{U}_\func{F}$-cone to which there is a unique
+    $\func{U}_\func{F}$-cone morphism, call the \emph{mediating morphism},
+    from any other $\func{U}_\func{F}$-cone.
+    \end{definition}
+    
+    \newcommand{\UFunc}[1]{\func{U}_{\func{#1}}}
+    \newcommand{\UCone}[1]{$\UFunc{#1}$-cone}
+    \newcommand{\ULimit}[1]{$\UFunc{#1}$-limit}
+    
+    \begin{lemma}[Forgetful Limits are Unique]
+    \label{lemma:forgetful_limits_are_unique}
+    If $(\func{X},v)$ is a $\func{U}_{\func{F}}$-limit, then it is unique
+    up to isomorphism.
+    \end{lemma}
+    \begin{proof}
+    Suppose $(\func{Y},v')$ is another \ULimit{F}. Thus, there is a unique
+    \UCone{F} morphism $i : \func{Y} \mto \func{X}$ such that $i;v = v'$.
+    But, there must also be a unique \UCone{F} morphism $j : \func{X} \mto
+    \func{Y}$ such that $j;v' = v$.  But, by substitution $i;j;v' = v'$
+    and $j;i;v = v$, but these in addition to the assumption that both $i$
+    and $j$ are unique imply that $i;j = \id_\func{Y}$ and $j;i =
+    \id_\func{X}$, and thus $i$ and $j$ are inverses of each other. 
+    \end{proof}
+% subsubsection graded_fold_build_fusion_rules (end)
+
+% subsection initial_algebra_packages_for_basic_ggadts (end)
