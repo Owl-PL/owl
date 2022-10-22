@@ -1,3 +1,6 @@
+This is all based on the initial algebra semantics for GADTs
+\cite{Johann:2007}.
+
 \subsection{The Non-Graded Case}
 \label{subsec:the_non_graded_case}
 We begin this section with an overview of the interpretation of
@@ -302,16 +305,61 @@ monoidal category.
     \]
 \end{definition}
 
+\begin{lemma}[From Structures to Homomorphisms]
+    \label{lemma:from_structures_to_homomorphisms}
+    Given any graded $\func{F}$-algebra $(\func{A},h)$, the structure map
+    $h$ is also a homomorphism between $\func{F}$-algebras
+    $(\func{F}(m,A(-)),\func{F}(-,h_{m,-}))$ and 
+    $(\func{A}(m \otimes -)),h_{-, m \otimes -})$.
+\end{lemma}
+\begin{proof}
+    This proof holds trivially by writing out the commutative square for
+    the $\func{F}$-algebra homomorphism.
+\end{proof}
+
 \begin{definition}
-    If the category of graded $\func{F}$-algebras has an initial object, then
-    we call this a \emph{graded initial} $\func{F}$-algebra denoted
-    by $(\mu\func{F}, \mathsf{in})$.  That is, for any other
-    $\func{F}$-algebra $(\func{A},h)$ there must be a unique morphism 
-    $\alpha : (\mu\func{F}, \mathsf{in}) \mto (\func{A},h)$, but this
-    implies that for any object $n$, $\alpha_n : \mu\func{F}(n) \mto
-    \func{A}(n)$ is unique and $\mu\func{F}(n)$ is an initial object
-    in $\cat{C}$.
+    If the category of graded $\func{F}$-algebras has an initial
+    object, then we call this a \emph{graded initial}
+    $\func{F}$-algebra denoted by $(\mu\func{F}, \mathsf{in})$.  That
+    is, for any other $\func{F}$-algebra $(\func{A},h)$ there must be
+    a unique morphism $\alpha : (\mu\func{F}, \mathsf{in}) \mto
+    (\func{A},h)$, but this implies that for any object $n$, $\alpha_n
+    : \mu\func{F}(n) \mto \func{A}(n)$ is unique and $\mu\func{F}(n)$
+    is an initial object in $\cat{C}$.
 \end{definition}
+
+\begin{lemma}[Graded Lambek's Lemma]
+    \label{lemma:graded_lambeks_lemma}
+    If $(\func{A},h)$ is a graded initial algebra of $\func{F}$, 
+    then for any object $m$, 
+    $\func{A}(m \otimes -) : \cat{E} \mto \cat{C}$ is isomorphic to 
+    $\func{F}(m, A(-)) : \cat{E} \mto \cat{C}$ via $h_m$.
+\end{lemma}
+\begin{proof}
+    Suppose $h_{m,n} : \func{F}(m,A(n)) \mto \func{A}(m \otimes n)$ is an initial
+    algebra structure for any $m$ and $n$.  
+    Now define an algebra structure:
+    \[
+    \func{F}(m',h_{m,n}) : \func{F}(m',\func{F}(m,A(n))) \mto \func{F}(m',\func{A}(m \otimes n))
+    \]
+    Then by initiality there exists an $\func{F}$-algebra homomorphism 
+    $$i_{m} : \func{A}(m \otimes -) \mto \func{F}(m,\func{A}(-))$$ such that:
+    $$\func{F(m',i_{m,n})} ; \func{F}(m',h_{m,n}) = h_{m',(m \otimes n)} ;
+    i_{m',(m \otimes n)}$$
+    We also know that $h_{m} : \func{F}(m,A(-)) \mto \func{A}(m \otimes -)$ is
+    itself a graded $\func{F}$-algebra homomorphism
+    (Lemma~\ref{lemma:from_structures_to_homomorphisms}). Thus, since we
+    know that $\func{A}(m \otimes n)$ is an initial object by definition and
+    assumption that $\func{A}$ is a graded initial object, and hence, 
+    $i_{m,n}; h_{m,n} = \id_{m \otimes n}$.  
+    
+    Next we know that $i$ is a graded $\func{F}$-algebra homomorphism which
+    implies $$\func{F}(m,i_{n,I});\func{F}(m,h_{n,I}) =
+    h_{m,n};i_{m,n}$$ but again by initiality we know that
+    $$\func{F}(m,i_{n,I});\func{F}(m,h_{n,I}) =
+    \id_{\func{F}(m,\func{A}(n))}$$
+    Therefore, $i$ is the inverse of $h$ and we obtain our result.
+\end{proof}
 
 Consider the case of graded GADTs. Using graded initial algebras we
 want the semantics to correspond to:
@@ -469,15 +517,11 @@ $\mathsf{fold}(h')$.
 
 \subsubsection{Graded Fold/Build Fusion Rules}
 \label{subsubsec:graded_fold_build_fusion_rules}
-
+% 
 The fold/build fusion rules for GADTs allow for the optimization of
 programs over data structures.  In this section we explain how graded
 fold/build fusion can be modeled in graded initial algebra semantics.
-
-\newcommand{\UFunc}[1]{\func{U}_{\func{#1}}}
-\newcommand{\UCone}[1]{$\UFunc{#1}$-cone}
-\newcommand{\ULimit}[1]{graded $\UFunc{#1}$-limit}
-
+% 
 We first will need a new universal property for graded initial
 algebras in terms of a limit over $\UFunc{F}$ cones.
 %   
@@ -559,49 +603,21 @@ $(\mu^*\func{K},\mathsf{fold}^*_\func{K})$ and
 $\mathsf{build}^*_\func{K}$ for the mediating map from some other
 \UCone{K} $(\func{X},v)$.
 
-\begin{lemma}[From Structures to Homomorphisms]
-    \label{lemma:from_structures_to_homomorphisms}
-    Given any graded $\func{F}$-algebra $(\func{A},h)$, the structure map
-    $h$ is also a homomorphism between $\func{F}$-algebras
-    $(\func{F}(m,A(-)),\func{F}(-,h_{m,-}))$ and $(\func{A}(m \otimes -)),h_{-, m \otimes -})$.
+Every graded initial $\func{K}$-algebra is also a \ULimit{F}.
+% 
+\begin{lemma}[Initial Algebras are also Limits]
+\label{lemma:initial_algebras_are_also_limits}
+    If there is a graded initial $\func{K}$-algebra
+    $(\mu\func{K},\mathsf{in})$ for a functor $\func{K} : \cat{E}
+    \times \cat{C} \mto \cat{C}$, then $\mu\func{K}$ is the vertex of
+    a \ULimit{K}.
 \end{lemma}
 \begin{proof}
-    This proof holds trivially by writing out the commutative square for
-    the $\func{F}$-algebra homomorphism.
+This proof follows from the proof of the same result for the
+non-graded case originally given in Proposition~4 of
+\cite{Ghani:2004}.
 \end{proof}
-    
-\begin{lemma}[Graded Lambek's Lemma]
-\label{lemma:graded_lambeks_lemma}
-    If $(\func{A},h)$ is a graded initial algebra of $\func{F}$, 
-    then for any object $m$, 
-    $\func{A}(m \otimes -) : \cat{E} \mto \cat{C}$ is isomorphic to 
-    $\func{F}(m, A(-)) : \cat{E} \mto \cat{C}$ via $h_m$.
-\end{lemma}
-\begin{proof}
-    Suppose $h_{m,n} : \func{F}(m,A(n)) \mto \func{A}(m \otimes n)$ is an initial
-    algebra structure for any $m$ and $n$.  
-    Now define an algebra structure:
-    \[
-    \func{F}(m',h_{m,n}) : \func{F}(m',\func{F}(m,A(n))) \mto \func{F}(m',\func{A}(m \otimes n))
-    \]
-    Then by initiality there exists an $\func{F}$-algebra homomorphism 
-    $$i_{m} : \func{A}(m \otimes -) \mto \func{F}(m,\func{A}(-))$$ such that:
-    $$\func{F(m',i_{m,n})} ; \func{F}(m',h_{m,n}) = h_{m',(m \otimes n)} ;
-    i_{m',(m \otimes n)}$$
-    We also know that $h_{m} : \func{F}(m,A(-)) \mto \func{A}(m \otimes -)$ is
-    itself a graded $\func{F}$-algebra homomorphism
-    (Lemma~\ref{lemma:from_structures_to_homomorphisms}). Thus, since we
-    know that $\func{A}(m \otimes n)$ is an initial object by definition and
-    assumption that $\func{A}$ is a graded initial object, and hence, 
-    $i_{m,n}; h_{m,n} = \id_{m \otimes n}$.  
-    
-    Next we know that $i$ is a graded $\func{F}$-algebra homomorphism which
-    implies $$\func{F}(m,i_{n,I});\func{F}(m,h_{n,I}) =
-    h_{m,n};i_{m,n}$$ but again by initiality we know that
-    $$\func{F}(m,i_{n,I});\func{F}(m,h_{n,I}) =
-    \id_{\func{F}(m,\func{A}(n))}$$
-    Therefore, $i$ is the inverse of $h$ and we obtain our result.
-\end{proof}
+
 % subsubsection graded_fold_build_fusion_rules (end)
 
 % subsection initial_algebra_packages_for_basic_ggadts (end)

@@ -25,7 +25,11 @@
 
 \usepackage[barr]{xy}
 
-\input{math}   
+\input{math}  
+
+\newcommand{\UFunc}[1]{\func{U}_{\func{#1}}}
+\newcommand{\UCone}[1]{$\UFunc{#1}$-cone}
+\newcommand{\ULimit}[1]{graded $\UFunc{#1}$-limit}
 
 %% Change "spec" to the language prefix.
 \input{spec-inc}  
@@ -66,7 +70,6 @@
 \input{theory}
 % section The Fundamental Theory (end)
 
-\nocite{*}
 \bibliography{refs}
 
 \appendix
