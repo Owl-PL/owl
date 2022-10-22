@@ -528,8 +528,9 @@ algebras in terms of a limit over $\UFunc{F}$ cones.
 \begin{definition}[Graded Forgetful Limits]
 \label{def:forgetful_limits}
     There is a forgetful functor from the category of graded
-    $\func{F}$-algebras and the functor category $[\cat{E},\cat{C}]$ and
-    their natural transformations. This functor is defined as follows:
+    $\func{F}$-algebras and the functor category $[\cat{E},\cat{C}]$
+    and their natural transformations. This functor is defined as
+    follows:
     \[
         \begin{array}{lll}
             \func{U}_\func{F}(\func{A},h) = \func{A}\\
@@ -537,11 +538,11 @@ algebras in terms of a limit over $\UFunc{F}$ cones.
         \end{array}
     \]
     Given an object of $[\cat{E},\cat{C}]$, say $\func{X}$, then a
-    \emph{$\func{U}_\func{F}$-cone for $X$} comprises, for every graded
-    $\func{F}$-albebra $(\func{A},h)$, a natural transformation 
+    \emph{$\func{U}_\func{F}$-cone for $X$} comprises, for every
+    graded $\func{F}$-albebra $(\func{A},h)$, a natural transformation
     $v_{(\func{A},h)} : \func{X} \mto \func{A}$ in $[\cat{E},\cat{C}]$
-    such that, for every graded $\func{F}$-algebra homomorphism $\alpha :
-    \func{A} \mto \func{B}$, we have:
+    such that, for every graded $\func{F}$-algebra homomorphism
+    $\alpha : \func{A} \mto \func{B}$, we have:
     \[
          \bfig
              \Atriangle(0,0)|mmm|/<-`->`->/<500,500>[
@@ -555,10 +556,11 @@ algebras in terms of a limit over $\UFunc{F}$ cones.
          \efig
     \]
     We denote these cones by $(\func{X},v)$ and call $\func{X}$ its
-    \emph{vertex} and $v_{(A,h)}$ the \emph{projection} from $\func{X}$ to
-    $\func{A}$. 
+    \emph{vertex} and $v_{(A,h)}$ the \emph{projection} from
+    $\func{X}$ to $\func{A}$. 
     
-    A \emph{$\func{U}_\func{F}$-cone morphism} $\gamma : (\func{X},v_1) \mto
+    A \emph{$\func{U}_\func{F}$-cone morphism} $\gamma :
+    (\func{X},v_1) \mto
     (\func{Y},v_2)$ is a natural transformation $\gamma : \func{X} \mto
     \func{Y}$ such that for any graded $\func{F}$-algebra $(A,h)$, we
     have:
@@ -574,27 +576,28 @@ algebras in terms of a limit over $\UFunc{F}$ cones.
              ]
          \efig
     \]
-    A \emph{$\func{U}_\func{F}$-limit} is a
-    $\func{U}_\func{F}$-cone to which there is a unique
-    $\func{U}_\func{F}$-cone morphism, call the \emph{mediating morphism},
-    from any other $\func{U}_\func{F}$-cone.
+    A \emph{$\func{U}_\func{F}$-limit} is a $\func{U}_\func{F}$-cone
+    to which there is a unique $\func{U}_\func{F}$-cone morphism, call
+    the \emph{mediating morphism}, from any other
+    $\func{U}_\func{F}$-cone.
 \end{definition}
 \noindent
 It is also the case that \ULimit{K}'s are unique up to isomorphism.
 % 
 \begin{lemma}[Forgetful Limits are Unique]
 \label{lemma:forgetful_limits_are_unique}
-    If $(\func{X},v)$ is a $\func{U}_{\func{K}}$-limit, then it is unique
-    up to isomorphism.
+    If $(\func{X},v)$ is a $\func{U}_{\func{K}}$-limit, then it is
+    unique up to isomorphism.
 \end{lemma}
 \begin{proof}
-    Suppose $(\func{Y},v')$ is another \ULimit{F}. Thus, there is a unique
-    \UCone{F} morphism $i : \func{Y} \mto \func{X}$ such that $i;v = v'$.
-    But, there must also be a unique \UCone{F} morphism $j : \func{X} \mto
-    \func{Y}$ such that $j;v' = v$.  But, by substitution $i;j;v' = v'$
-    and $j;i;v = v$, but these in addition to the assumption that both $i$
-    and $j$ are unique imply that $i;j = \id_\func{Y}$ and $j;i =
-    \id_\func{X}$, and thus $i$ and $j$ are inverses of each other. 
+    Suppose $(\func{Y},v')$ is another \ULimit{F}. Thus, there is a
+    unique \UCone{F} morphism $i : \func{Y} \mto \func{X}$ such that
+    $i;v = v'$. But, there must also be a unique \UCone{F} morphism $j
+    : \func{X} \mto \func{Y}$ such that $j;v' = v$.  But, by
+    substitution $i;j;v' = v'$ and $j;i;v = v$, but these in addition
+    to the assumption that both $i$ and $j$ are unique imply that $i;j
+    = \id_\func{Y}$ and $j;i = \id_\func{X}$, and thus $i$ and $j$ are
+    inverses of each other. 
 \end{proof}
 % 
 \noindent
@@ -607,17 +610,24 @@ Every graded initial $\func{K}$-algebra is also a \ULimit{F}.
 % 
 \begin{lemma}[Initial Algebras are also Limits]
 \label{lemma:initial_algebras_are_also_limits}
-    If there is a graded initial $\func{K}$-algebra
+\,\\[-15pt]
+\begin{enumerate}[label=\roman*.]
+\item If there is a graded initial $\func{K}$-algebra
     $(\mu\func{K},\mathsf{in})$ for a functor $\func{K} : \cat{E}
     \times \cat{C} \mto \cat{C}$, then $\mu\func{K}$ is the vertex of
     a \ULimit{K}.
+\item If there is a \ULimit{K}
+$(\mu^*\func{K},\mathsf{fold}^*_\func{K})$, then $\mu^*\func{K}$
+is the carrier of a graded initial $\func{K}$-algebra.
+\end{enumerate}
 \end{lemma}
 \begin{proof}
 This proof follows from the proof of the same result for the
-non-graded case originally given in Proposition~4 of
+non-graded case originally given in Proposition~4 and Proposition~5 of
 \cite{Ghani:2004}.
 \end{proof}
-
 % subsubsection graded_fold_build_fusion_rules (end)
+
+\todoi{If there is time, add the dinaturality from \cite{Ghani:2004}}
 
 % subsection initial_algebra_packages_for_basic_ggadts (end)
