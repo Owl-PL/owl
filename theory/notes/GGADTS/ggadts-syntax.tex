@@ -1,3 +1,6 @@
+\subsection{Graded GADTs}
+\label{subsec:graded_gadts}
+
 \begin{verbatim}
     data G f1 f2 f3 ... fi h1 h2 h3 ... hi a where
         GCon1 :: f1 m1 (G n1 f1 h1) a -> G (m1 * n1) f1 h1 (h1 a)
@@ -6,3 +9,31 @@
         ...
         GConi :: fi mi (G ni fi hi) a -> G (mi * ni) fi hi (hi a)
 \end{verbatim} 
+
+% subsection graded_gadts (end)
+
+\subsection{Fold and Build}
+\label{subsec:fold_and_build}
+\begin{center}
+     \begin{math}        
+        \begin{array}{lll}
+            \inferrule*[flushleft] {
+                \func{X} : \cat{E} \to * \to *\\\\
+                h : \forall n,m : \cat{E}.\func{K}(m,\func{X}(n)) \to \func{X}(m \otimes n)\\                
+            }{(\func{X},h) : \mathsf{K}\text{-}\mathsf{GradeAlg}}  
+            &
+            \,
+            &            
+            \inferrule*[flushleft] {
+                (\func{X},h) : \mathsf{K}\text{-}\mathsf{GradeAlg}\\
+                 n : \cat{E}
+            }{\mathsf{fold}^*_{\func{K},\func{X}}(h,n) : \mu^*\func{K}(n) \to \func{X}(n)}  
+            \\[10pt]
+            \inferrule* [flushleft] {
+                (\func{X},h_1) : \mathsf{K}\text{-}\mathsf{GradeAlg}\\
+                (\func{Y},h_2) : \mathsf{K}\text{-}\mathsf{GradeAlg}\\
+            }{}
+        \end{array}
+     \end{math}
+\end{center}
+% subsection fold_and_build (end)
