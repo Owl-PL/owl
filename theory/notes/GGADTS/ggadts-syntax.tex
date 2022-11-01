@@ -21,37 +21,70 @@ Suppose we have:
         \item $\func{K} : \cat{E} \to * \to *$ a bi-functor.
     \end{enumerate}
 \end{center}
+
+\newcommand{\UConeM}[1]{\mathsf{U}_{\func{#1}}\text{-}\mathsf{Cone}}
+\newcommand{\UConeHom}[1]{\mathsf{U}_{\func{#1}}\text{-}\mathsf{ConeHom}}
+\newcommand{\GradeAlg}[1]{\func{#1}\text{-}\mathsf{GradeAlg}}
+\newcommand{\GradeAlgHom}[1]{\func{#1}\text{-}\mathsf{GradeAlgHom}}
+\newcommand{\build}[2]{\mathsf{build}^*_{\func{#1},\func{#2}}} 
+\newcommand{\foldT}{\mathsf{fold}}
+\newcommand{\fold}[2]{\foldT^*_{\func{#1},\func{#2}}}
+\newcommand{\foldOne}[1]{\foldT^*_{\func{#1}}}
+
 \begin{center}
      \begin{math}        
         \begin{array}{lll}
             \inferrule*[flushleft] {
                 \func{X} : \cat{E} \to * \to *\\\\
                 h : \forall n,m : \cat{E}.\forall a : *.\func{K}(m,\func{X}(n,a)) \to \func{X}(m \otimes n,a)\\                
-            }{(\func{X},h) : \mathsf{K}\text{-}\mathsf{GradeAlg}}  
+            }{(\func{X},h) : \GradeAlg{K}}  
             \\[10pt]
-            % Add rule for morphisms, then use below.
             \inferrule* [flushleft] {
-                (\func{X},h_1) : \mathsf{K}\text{-}\mathsf{GradeAlg}\\ 
-                (\func{Y},h_2) : \mathsf{K}\text{-}\mathsf{GradeAlg}\\ \func{f} : \forall n : \cat{E}.\forall a : *.\func{X}(n,a) \to \func{Y}(n,a)\\\\
+                (\func{X},h_1) : \GradeAlg{K}\\ 
+                (\func{Y},h_2) : \GradeAlg{K}\\ \func{f} : \forall n : \cat{E}.\forall a : *.\func{X}(n,a) \to \func{Y}(n,a)\\\\
                 \forall n,m : \cat{E}.\forall a : *.\forall x \in \func{K}(m,\func{X}(n,a)).h_2(m,n,\func{K}(m,f(n))(x)) = \func{f}(m \otimes n,h_1(m,n,x))
-            }{\func{f} : \func{K}\text{-}\mathsf{GradeAlgHom}((\func{X},h_1),(\func{Y},h_2))}
+            }{\func{f} : \GradeAlgHom{K}((\func{X},h_1),(\func{Y},h_2))}            
             \\[10pt]          
             \inferrule*[flushleft] {
-                (\func{X},h) : \mathsf{K}\text{-}\mathsf{GradeAlg}\\
-            }{\mathsf{fold}^*_{\func{K},\func{X}}(h,n) : \forall n:\cat{E}.\mu^*\func{K}(n) \to \func{X}(n)}  
-            \\[10pt]
-            \inferrule*[flushleft] {
-                \func{f} : \func{K}\text{-}\mathsf{GradeAlgHom}((\func{X},h_1),(\func{Y},h_2))
-            }{\forall m : \cat{E}.\forall a : *.f(n,a,\mathsf{fold}^*_{\func{K},\func{X}}(h_1,m)) = \mathsf{fold}^*_{\func{K},\func{Y}}(h_2,m)}
-            \\[10pt]
-            \inferrule*[flushleft] {
                 \func{X} : \cat{E} \to * \to *\\\\                                
-                (\func{Y}_1,h_1) : \mathsf{K}\text{-}\mathsf{GradeAlg}\\\\
-                (\func{Y}_2,h_2) : \mathsf{K}\text{-}\mathsf{GradeAlg}\\\\
-                \func{f} : \func{K}\text{-}\mathsf{GradeAlgHom}((\func{Y}_1,h_1),(\func{Y}_2,h_2))\\\\            
-                v : \forall (\func{Y},h) : \mathsf{K}\text{-}\mathsf{GradeAlg}.\forall m : \cat{E}.\forall a : *.\func{X}(m,a) \to \func{Y}(m,a)\\\\
+                (\func{Y}_1,h_1) : \GradeAlg{K}\\\\
+                (\func{Y}_2,h_2) : \GradeAlg{K}\\\\
+                \func{f} : \GradeAlgHom{K}((\func{Y}_1,h_1),(\func{Y}_2,h_2))\\\\            
+                v : \forall (\func{Y},h) : \GradeAlg{K}.\forall m : \cat{E}.\forall a : *.\func{X}(m,a) \to \func{Y}(m,a)\\\\
                 \forall m : \cat{E}.\forall a : *.f(m,a,v(\func{Y}_1,h_1,m,a)) = v(\func{Y}_2,h_2,m,a)
-            }{(\func{X},v) : $\UCone{K}$}
+            }{(\func{X},v) : \UConeM{K}}
+            \\[10pt]
+            \inferrule* [flushleft] {
+                (\func{X},v_1) : $\UCone{K}$\\\\
+                (\func{Y},v_2) : $\UCone{K}$\\\\
+                \func{f} : \forall n : \cat{E}.\forall a : *.\func{X}(n,a) \to \func{Y}(n,a)\\\\
+                \forall (\func{Y},h) : \GradeAlg{K}.\forall n : \cat{E}.\forall a : *.v_2(\func{Z},h,n,a,\func{f}(n,a,x)) = v_1(\func{Z},h,n,a,x)
+            }{\func{f} : \UConeHom{K}((\func{X},v_1),(\func{Y},v_2))}
+            \\[10pt]
+            \inferrule*[flushleft] {
+                (\func{X},h) : \GradeAlg{K}\\
+            }{\fold{K}{X}(h) : \forall n:\cat{E}.\forall a : *.\mu^*\func{K}(n,a) \to \func{X}(n,a)}  
+            \\[10pt]
+            \inferrule*[flushleft] {
+                \func{f} : \GradeAlgHom{K}((\func{X},h_1),(\func{Y},h_2))
+            }{\forall m : \cat{E}.\forall a : *.f(n,a,\fold{K}{X}(h_1,m,a)) = \fold{K}{Y}(h_2,m,a)}
+            \\[10pt]
+            \inferrule* [flushleft] {
+                 (\func{X},v) : \UConeM{K}
+            }{\build{K}{X}(v) : \forall n:\cat{E}.\forall a : *.\func{X}(n,a) \to \mu^*\func{K}(n,a)}
+            \\[10pt]            
+            \inferrule* [flushleft] {
+                 (\func{X},v) : \UConeM{K}\\
+                 (\func{Y},h) : \GradeAlg{K}
+            }{\forall m : \cat{E}.\forall a : *.\forall x : \func{X}(m,a).\fold{K}{Y}(h,m,a,\build{K}{X}(v,m,a,x)) =  v(\func{Y},h,m,a,x)}
+            \\[10pt]
+            \inferrule* [flushleft] {
+                 \,
+            }{\forall n : \cat{E}.\forall a : *.\id_{\mu^*\func{K}(n,a)} = \build{K}{\mu^*\func{K}}(\foldOne{K},n,a)}
+            \\[10pt]
+            \inferrule* [flushleft] {
+                \func{f} : \UConeHom{K}((\func{X},v_1),(\func{Y},v_2))
+            }{\forall n : \cat{E}.\forall a : *.\forall x : \func{X}(n,a).\build{K}{X}(v_1,n,a) = \build{K}{Y}(v_2,n,a,f(n,a,x))}
         \end{array}
      \end{math}
 \end{center}

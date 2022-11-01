@@ -10,3 +10,5 @@
 /stack.yaml
 /src/OwlCore/Parser/Lexer.hs
 /.stack-work/
+
+*.agdai
