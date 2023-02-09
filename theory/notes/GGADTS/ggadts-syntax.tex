@@ -89,3 +89,15 @@ Suppose we have:
      \end{math}
 \end{center}
 % subsection fold_and_build (end)
+
+\subsection{Pull}
+\label{subsec:pull}
+\begin{verbatim}
+pull : forall {a b : Type, eff : Effect, r s : eff} .
+         (a <r>, b <s>) -> (a, b) <r * s>
+pull (p, q) = let x <- p;
+                  y <- q
+              in pure (x, y)
+\end{verbatim}
+
+% subsection pull (end)

@@ -41,8 +41,14 @@ $(OTT_TARGETS) : $(OTT_FILES) $(OTTGen)
 
 $(PDF) : $(FILES) $(OTT_TARGETS)
 	$(PDFLATEX) -jobname=$(TexFileName) $(TexFileName).tex
+	bibtex $(TexFileName)
+	$(PDFLATEX) -jobname=$(TexFileName) $(TexFileName).tex
+	$(PDFLATEX) -jobname=$(TexFileName) $(TexFileName).tex
 
 clean :
 	rm -f *.aux *.dvi *.ps *.log *-ott.tex *-output.tex *.bbl *.blg \
 	      *.rel note.pdf *~ *.vtc *.out *.spl *-inc.tex  *-ott.tex *-ottput.tex \
 	      *.toc
+
+open : $(PDF)
+	open -a Skim $(PDF)

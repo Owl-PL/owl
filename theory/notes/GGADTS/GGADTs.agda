@@ -27,11 +27,10 @@ module GGADTS (E : Set)           (mon    : Monoid E)
   fmap : (r : E) → ∀{A}{B} → (A → B) → K r A → K r B
   fmap r = Functor.fmap (GrFunctor.isFunctor grFunc r)
 
-  {-# NO_UNIVERSE_CHECK #-}
-  record K-GradeAlg (X : E → Set → Set): Set where
-    field
-      structureMap : ∀ n m {A} → K m (X n A) → X (m ⊗ n) A
-      
-  
+  open import Data.Product
 
-  
+  K-GradeAlg : Set₁
+  K-GradeAlg = Σ[ X ∈ (E → Set → Set) ](∀ n m {A} → K m (X n A) → X (m ⊗ n) A)
+
+K-GradeAlgHom : K-GradeAlg → K-GradeAlg → Set₁
+K-GradeAlgHom (X , _) (Y , _) = Σ[ f ∈ (∀ n {A} → X n A → Y n A) ]({!   !})
